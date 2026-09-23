@@ -111,23 +111,19 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex space-x-1 overflow-x-auto py-1">
                 <button onclick="switchTab('kecekapan')" id="tabBtn-kecekapan" class="tab-btn active inline-flex items-center space-x-2 px-3.5 py-2 text-xs font-semibold rounded-lg border-b-2 border-transparent text-slate-600 hover:text-utm-maroon hover:bg-white transition whitespace-nowrap">
                     <i data-lucide="gauge" class="w-4 h-4"></i>
-                    <span>Helaian 1: Kecekapan Proses (Jan-26 Ogos)</span>
+                    <span>Kecekapan Proses & Semakan Permohonan </span>
                 </button>
                 <button onclick="switchTab('perbandingan')" id="tabBtn-perbandingan" class="tab-btn inline-flex items-center space-x-2 px-3.5 py-2 text-xs font-semibold rounded-lg border-b-2 border-transparent text-slate-600 hover:text-utm-maroon hover:bg-white transition whitespace-nowrap">
                     <i data-lucide="git-compare" class="w-4 h-4"></i>
-                    <span>Helaian 2: Perbandingan Siri (Bil. 11 vs Bil. 12)</span>
+                    <span>Perbandingan Siri </span>
                 </button>
                 <button onclick="switchTab('gra')" id="tabBtn-gra" class="tab-btn inline-flex items-center space-x-2 px-3.5 py-2 text-xs font-semibold rounded-lg border-b-2 border-transparent text-slate-600 hover:text-utm-maroon hover:bg-white transition whitespace-nowrap">
                     <i data-lucide="pie-chart" class="w-4 h-4"></i>
                     <span>Helaian 3: Status Lantikan GRA</span>
                 </button>
-                <button onclick="switchTab('templat')" id="tabBtn-templat" class="tab-btn inline-flex items-center space-x-2 px-3.5 py-2 text-xs font-semibold rounded-lg border-b-2 border-transparent text-slate-600 hover:text-utm-maroon hover:bg-white transition whitespace-nowrap">
-                    <i data-lucide="table-properties" class="w-4 h-4"></i>
-                    <span>Helaian 4: Templat & Editor Data</span>
-                </button>
                 <button onclick="switchTab('semakan')" id="tabBtn-semakan" class="tab-btn inline-flex items-center space-x-2 px-3.5 py-2 text-xs font-semibold rounded-lg border-b-2 border-transparent text-slate-600 hover:text-utm-maroon hover:bg-white transition whitespace-nowrap">
                     <i data-lucide="search-check" class="w-4 h-4"></i>
-                    <span>Helaian 5: Semakan Permohonan</span>
+                    <span>Semakan Permohonan</span>
                 </button>
             </div>
         </div>
@@ -155,7 +151,7 @@
                         <span>Bulan:</span>
                     </label>
                     <select id="filterBulan" onchange="applyGlobalFilters()" class="text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-utm-maroon flex-1 cursor-pointer">
-                        <option value="all">Semua Bulan (Jan - 26 Ogos Kumulatif)</option>
+                        <option value="all">Semua Bulan</option>
                         <option value="1">Januari 2026</option>
                         <option value="2">Februari 2026</option>
                         <option value="3">Mac 2026</option>
@@ -163,7 +159,7 @@
                         <option value="5">Mei 2026</option>
                         <option value="6">Jun 2026</option>
                         <option value="7">Julai 2026</option>
-                        <option value="8">Ogos 2026 (Data sehingga 26-08-2026)</option>
+                        <option value="8">Ogos 2026</option>
                     </select>
                 </div>
 
@@ -174,7 +170,7 @@
                         <span>Proses:</span>
                     </label>
                     <select id="filterProses" onchange="applyGlobalFilters()" class="text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-utm-maroon flex-1 cursor-pointer">
-                        <option value="all">Semua Jenis Proses (10 Kategori)</option>
+                        <option value="all">Semua Jenis Proses</option>
                         <option value="Aktiviti dalam negara">Aktiviti dalam negara</option>
                         <option value="Aktiviti luar negara">Aktiviti luar negara</option>
                         <option value="Pelantikan RA/RO">Pelantikan RA/RO</option>
