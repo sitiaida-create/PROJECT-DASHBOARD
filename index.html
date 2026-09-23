@@ -64,31 +64,30 @@
         }
         .tab-btn.active {
             color: #7A1315;
-            border-bottom-color: #7A1315;
             background-color: #fff1f2;
+            border-left-color: #7A1315;
             font-weight: 700;
+        }
+        @media (max-width: 767px) {
+            .tab-btn.active {
+                border-left-color: transparent;
+                border-bottom-color: #7A1315;
+            }
         }
     </style>
 </head>
 <body class="text-slate-800 antialiased min-h-screen flex flex-col">
 
+    <!-- Header Laman Utama -->
     <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 rounded-xl bg-utm-maroon flex items-center justify-center text-white font-extrabold text-lg shadow-sm">
-                        UTM
-                    </div>
-                    <div>
-                        <div class="flex items-center space-x-2">
-                            <h1 class="text-base sm:text-lg font-bold text-slate-900 leading-tight">PMMD - PERFORMANCE DASHBOARD</h1>
-                        
-                        </div>
-                        <p class="text-xs text-slate-500 hidden sm:flex items-center space-x-1">
-                            <span>Templat Sumber:</span>
-                            <span class="font-mono font-semibold text-utm-maroon bg-rose-50 px-1.5 py-0.5 rounded">Data Performan PMMD Jan hingga 26 Ogos.xlsx</span>
-                        </p>
-                    </div>
+                <div>
+                    <h1 class="text-base sm:text-lg font-bold text-slate-900 leading-tight">PMMD - PERFORMANCE DASHBOARD</h1>
+                    <p class="text-xs text-slate-500 hidden sm:flex items-center space-x-1">
+                        <span>Templat Sumber:</span>
+                        <span class="font-mono font-semibold text-utm-maroon bg-rose-50 px-1.5 py-0.5 rounded">Data Performan PMMD Jan hingga 26 Ogos.xlsx</span>
+                    </p>
                 </div>
 
                 <div class="flex items-center space-x-2.5">
@@ -105,31 +104,55 @@
                 </div>
             </div>
         </div>
-
-        <!-- Tab Navigasi Lembaran Kerja (Excel Sheets) -->
-        <div class="border-t border-slate-100 bg-slate-50/80">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex space-x-1 overflow-x-auto py-1">
-                <button onclick="switchTab('kecekapan')" id="tabBtn-kecekapan" class="tab-btn active inline-flex items-center space-x-2 px-3.5 py-2 text-xs font-semibold rounded-lg border-b-2 border-transparent text-slate-600 hover:text-utm-maroon hover:bg-white transition whitespace-nowrap">
-                    <i data-lucide="gauge" class="w-4 h-4"></i>
-                    <span>Kecekapan Proses & Semakan Permohonan </span>
-                </button>
-                <button onclick="switchTab('perbandingan')" id="tabBtn-perbandingan" class="tab-btn inline-flex items-center space-x-2 px-3.5 py-2 text-xs font-semibold rounded-lg border-b-2 border-transparent text-slate-600 hover:text-utm-maroon hover:bg-white transition whitespace-nowrap">
-                    <i data-lucide="git-compare" class="w-4 h-4"></i>
-                    <span>Perbandingan Siri </span>
-                </button>
-                <button onclick="switchTab('gra')" id="tabBtn-gra" class="tab-btn inline-flex items-center space-x-2 px-3.5 py-2 text-xs font-semibold rounded-lg border-b-2 border-transparent text-slate-600 hover:text-utm-maroon hover:bg-white transition whitespace-nowrap">
-                    <i data-lucide="pie-chart" class="w-4 h-4"></i>
-                    <span>Status Lantikan GRA</span>
-                </button>
-                <button onclick="switchTab('semakan')" id="tabBtn-semakan" class="tab-btn inline-flex items-center space-x-2 px-3.5 py-2 text-xs font-semibold rounded-lg border-b-2 border-transparent text-slate-600 hover:text-utm-maroon hover:bg-white transition whitespace-nowrap">
-                    <i data-lucide="search-check" class="w-4 h-4"></i>
-                    <span>Semakan Permohonan</span>
-                </button>
-            </div>
-        </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full space-y-6">
+    <!-- Susun Atur Utama: Bar Sisi Kiri (Sidebar Menu) & Kandungan -->
+    <div class="flex-1 flex flex-col md:flex-row w-full max-w-7xl mx-auto">
+        <!-- Sidebar Menu Navigasi di Bahagian Kiri -->
+        <aside class="w-full md:w-64 lg:w-72 bg-white md:bg-transparent border-b md:border-b-0 md:border-r border-slate-200 p-3 sm:p-4 md:py-6 shrink-0">
+            <div class="md:sticky md:top-20 space-y-4">
+                <div class="px-2 hidden md:block">
+                    <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Menu</span>
+                </div>
+
+                <nav class="flex md:flex-col gap-1.5 overflow-x-auto md:overflow-visible pb-1 md:pb-0">
+                    <button onclick="switchTab('kecekapan')" id="tabBtn-kecekapan" class="tab-btn active w-full text-left inline-flex items-center space-x-2.5 px-3.5 py-2.5 text-xs font-semibold rounded-xl border-l-4 md:border-l-4 border-b-2 md:border-b-0 border-transparent text-slate-600 hover:text-utm-maroon hover:bg-white md:hover:bg-rose-50/50 transition whitespace-nowrap md:whitespace-normal">
+                        <i data-lucide="gauge" class="w-4 h-4 shrink-0"></i>
+                        <span>Kecekapan Proses & Semakan</span>
+                    </button>
+                    <button onclick="switchTab('perbandingan')" id="tabBtn-perbandingan" class="tab-btn w-full text-left inline-flex items-center space-x-2.5 px-3.5 py-2.5 text-xs font-semibold rounded-xl border-l-4 md:border-l-4 border-b-2 md:border-b-0 border-transparent text-slate-600 hover:text-utm-maroon hover:bg-white md:hover:bg-rose-50/50 transition whitespace-nowrap md:whitespace-normal">
+                        <i data-lucide="git-compare" class="w-4 h-4 shrink-0"></i>
+                        <span>Perbandingan Siri (Bil. 11 vs 12)</span>
+                    </button>
+                    <button onclick="switchTab('gra')" id="tabBtn-gra" class="tab-btn w-full text-left inline-flex items-center space-x-2.5 px-3.5 py-2.5 text-xs font-semibold rounded-xl border-l-4 md:border-l-4 border-b-2 md:border-b-0 border-transparent text-slate-600 hover:text-utm-maroon hover:bg-white md:hover:bg-rose-50/50 transition whitespace-nowrap md:whitespace-normal">
+                        <i data-lucide="pie-chart" class="w-4 h-4 shrink-0"></i>
+                        <span>Status Lantikan GRA</span>
+                    </button>
+                    <button onclick="switchTab('templat')" id="tabBtn-templat" class="tab-btn w-full text-left inline-flex items-center space-x-2.5 px-3.5 py-2.5 text-xs font-semibold rounded-xl border-l-4 md:border-l-4 border-b-2 md:border-b-0 border-transparent text-slate-600 hover:text-utm-maroon hover:bg-white md:hover:bg-rose-50/50 transition whitespace-nowrap md:whitespace-normal">
+                        <i data-lucide="file-spreadsheet" class="w-4 h-4 shrink-0"></i>
+                        <span>Templat & Muat Naik Excel</span>
+                    </button>
+                    <button onclick="switchTab('semakan')" id="tabBtn-semakan" class="tab-btn w-full text-left inline-flex items-center space-x-2.5 px-3.5 py-2.5 text-xs font-semibold rounded-xl border-l-4 md:border-l-4 border-b-2 md:border-b-0 border-transparent text-slate-600 hover:text-utm-maroon hover:bg-white md:hover:bg-rose-50/50 transition whitespace-nowrap md:whitespace-normal">
+                        <i data-lucide="search-check" class="w-4 h-4 shrink-0"></i>
+                        <span>Semakan Permohonan</span>
+                    </button>
+                </nav>
+
+                <!-- Kad Info Ringkas Bar Sisi (Desktop) -->
+                <div class="hidden md:block p-3.5 bg-white rounded-2xl border border-slate-200 shadow-2xs space-y-2">
+                    <div class="flex items-center space-x-2 text-utm-maroon font-bold text-xs">
+                        <i data-lucide="info" class="w-3.5 h-3.5"></i>
+                        <span>Maklumat Sumber</span>
+                    </div>
+                    <p class="text-[11px] text-slate-500 leading-relaxed">
+                        Data pemantauan prestasi bagi mesyuarat PMMD (Januari sehingga 26 Ogos).
+                    </p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Kandungan Utama Papan Pemuka -->
+        <main class="flex-1 min-w-0 p-4 sm:p-6 lg:py-6 lg:px-8 space-y-6">
 
         <!-- Bar Penapis Global mengikut format templat Excel -->
         <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
@@ -159,7 +182,7 @@
                         <option value="5">Mei 2026</option>
                         <option value="6">Jun 2026</option>
                         <option value="7">Julai 2026</option>
-                        <option value="8">Ogos 2026</option>
+                        <option value="8">Ogos 2026 (sehingga 26-08-2026)</option>
                     </select>
                 </div>
 
@@ -193,6 +216,15 @@
         </div>
 
         <!-- Banner status data aktif / fail excel termuat -->
+        <div id="fileStatusBanner" class="flex items-center justify-between px-4 py-2.5 bg-rose-50/70 border border-rose-200/80 rounded-xl text-xs text-rose-950">
+            <div class="flex items-center space-x-2">
+                <i data-lucide="file-spreadsheet" class="w-4 h-4 text-utm-maroon flex-shrink-0"></i>
+                <span>Status Data: <strong id="currentDataSourceName">Templat Rasmi Asal (Data Performan PMMD Jan hingga 26 Ogos.xlsx)</strong></span>
+            </div>
+            <span class="text-[10px] font-bold uppercase bg-white border border-rose-200 px-2.5 py-0.5 rounded text-utm-maroon" id="activeFilterBadgeSummary">Semua Kategori (10 Proses)</span>
+        </div>
+
+        <!-- 4 Kad Metrik Utama (KPI Cards) -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
                 <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
@@ -259,13 +291,16 @@
 
         <!-- Jalur Metrik Khas: Permohonan 7-14 Hari & >15 Hari -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="bg-amber-50/60 border border-amber-200 p-4 rounded-2xl flex items-center justify-between">
+            <div onclick="openProcessCasesModal('Pelantikan GRA/SRA', '8-14')" class="bg-amber-50/60 hover:bg-amber-50 border border-amber-200 p-4 rounded-2xl flex items-center justify-between cursor-pointer transition shadow-2xs group" title="Klik untuk melihat kes dalam julat 7-14 hari">
                 <div class="flex items-center space-x-3.5">
                     <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center font-bold shadow-xs">
                         <i data-lucide="clock" class="w-5 h-5"></i>
                     </div>
                     <div>
-                        <span class="text-xs font-bold text-amber-950 uppercase tracking-wider">Permohonan Tempoh Sederhana (7-14 Hari)</span>
+                        <div class="flex items-center space-x-1.5">
+                            <span class="text-xs font-bold text-amber-950 uppercase tracking-wider">Permohonan Tempoh Sederhana (7-14 Hari)</span>
+                            <i data-lucide="external-link" class="w-3 h-3 text-amber-600 opacity-0 group-hover:opacity-100 transition"></i>
+                        </div>
                         <div class="flex items-baseline space-x-2 mt-0.5">
                             <span class="text-xl font-extrabold text-amber-900" id="kpiCount7_14">226 kes</span>
                             <span class="text-xs font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full" id="kpiPct7_14">5.3%</span>
@@ -278,13 +313,16 @@
                 </div>
             </div>
 
-            <div class="bg-rose-50/70 border border-rose-200 p-4 rounded-2xl flex items-center justify-between">
+            <div onclick="openProcessCasesModal('Semakan End Report', 'gt15')" class="bg-rose-50/70 hover:bg-rose-50 border border-rose-200 p-4 rounded-2xl flex items-center justify-between cursor-pointer transition shadow-2xs group" title="Klik untuk melihat kes melebihi 15 hari">
                 <div class="flex items-center space-x-3.5">
                     <div class="w-10 h-10 rounded-xl bg-rose-600 text-white flex items-center justify-center font-bold shadow-xs">
                         <i data-lucide="alert-octagon" class="w-5 h-5"></i>
                     </div>
                     <div>
-                        <span class="text-xs font-bold text-rose-950 uppercase tracking-wider">Permohonan Tempoh Lanjut (>15 Hari)</span>
+                        <div class="flex items-center space-x-1.5">
+                            <span class="text-xs font-bold text-rose-950 uppercase tracking-wider">Permohonan Tempoh Lanjut (>15 Hari)</span>
+                            <i data-lucide="external-link" class="w-3 h-3 text-rose-600 opacity-0 group-hover:opacity-100 transition"></i>
+                        </div>
                         <div class="flex items-baseline space-x-2 mt-0.5">
                             <span class="text-xl font-extrabold text-rose-900" id="kpiCountGt15">261 kes</span>
                             <span class="text-xs font-bold text-rose-700 bg-rose-100 px-2 py-0.5 rounded-full" id="kpiPctGt15">6.1%</span>
@@ -298,6 +336,7 @@
             </div>
         </div>
 
+        <!-- TAB 1: KECEKAPAN PROSES -->
         <div id="tabContent-kecekapan" class="space-y-6">
             <!-- Graf Kecekapan Proses -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -507,6 +546,7 @@
             </div>
         </div>
 
+        <!-- TAB 2: PERBANDINGAN SIRI BIL 11 VS BIL 12 -->
         <div id="tabContent-perbandingan" class="hidden space-y-6">
             <!-- Graf Bar Perbandingan Bil 11 vs Bil 12 -->
             <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
@@ -571,6 +611,7 @@
             </div>
         </div>
 
+        <!-- TAB 3: STATUS LANTIKAN GRA -->
         <div id="tabContent-gra" class="hidden space-y-6">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 <!-- Donut Chart GRA (Slaid 4) -->
@@ -636,6 +677,7 @@
             </div>
         </div>
 
+        <!-- TAB 4: TEMPLAT & MUAT NAIK EXCEL -->
         <div id="tabContent-templat" class="hidden space-y-6">
             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-5">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
@@ -718,6 +760,7 @@
             </div>
         </div>
 
+        <!-- TAB 5: SEMAKAN PERMOHONAN -->
         <div id="tabContent-semakan" class="hidden space-y-6">
             <!-- Kad Carian Semakan -->
             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs">
@@ -837,7 +880,8 @@
             </div>
         </div>
 
-    </main>
+        </main>
+    </div>
 
     <!-- Kaki Laman -->
     <footer class="bg-white border-t border-slate-200 py-4 mt-8">
@@ -853,7 +897,7 @@
         </div>
     </footer>
 
-    <!-- Modal Maklumat Lengkap Kes Permohonan Mengikut Kategori & Tempoh -->
+    <!-- MODAL MAKLUMAT LENGKAP KES PERMOHONAN (HELAIAN 1) -->
     <div id="processCasesModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
         <div class="bg-white rounded-2xl max-w-5xl w-full max-h-[92vh] border border-slate-200 shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
             <!-- Modal Header -->
@@ -958,7 +1002,7 @@
         </div>
     </div>
 
-    <!-- Modal Butiran Permohonan -->
+    <!-- Modal Butiran Permohonan Modul Semakan -->
     <div id="detailModal" class="hidden fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-lg w-full border border-slate-200 shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
             <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
@@ -989,6 +1033,7 @@
         </div>
     </div>
 
+    <!-- LOGIK JAVASCRIPT SISTEM -->
     <script>
         // Data Asas Helaian 1: Kecekapan Proses (Jan - 26 Ogos)
         const rawJanOgosTemplateData = [
@@ -1032,7 +1077,7 @@
             { status: "Pending approval from officer (RMC)", b11: 0, b12: 0, pct: 0, diff: 0, color: '#94a3b8' }
         ];
 
-        // Rekod Sampel Semakan
+        // Rekod Sampel Semakan Modul Status
         const sampleApplications = [
             {
                 ref: "UTM-GRA-2026-0881",
@@ -1134,7 +1179,7 @@
         let activeModalPeriodFilter = "all";
         let activeModalCasesList = [];
 
-        // Pangkalan Data Lengkap Simulasi Kes Mengikut SOP & Fakulti UTM
+        // Pangkalan Data Lengkap Simulasi Kes Mengikut Fakulti & SOP UTM
         const facultiesList = [
             "Fakulti Kejuruteraan Elektrik (FKE)",
             "Fakulti Kejuruteraan Mekanikal (FKM)",
@@ -1183,10 +1228,9 @@
             };
 
             const codePrefix = prefixMap[processName] || "UTM-PMMD";
-            const sampleCount = Math.min(60, processMeta.permohonan); // Paparan sampel representatif seimbang
+            const sampleCount = Math.min(60, processMeta.permohonan);
             const cases = [];
 
-            // Nisbah peruntukan kes
             const countGt15 = Math.max(processMeta.dgt15 > 0 ? 1 : 0, Math.round((processMeta.dgt15 / 100) * sampleCount));
             const count8_14 = Math.max(processMeta.d8_14 > 0 ? 1 : 0, Math.round((processMeta.d8_14 / 100) * sampleCount));
             const count1_7 = Math.max(1, sampleCount - countGt15 - count8_14);
@@ -1195,7 +1239,7 @@
 
             // 1. Kes >15 Hari
             for (let i = 0; i < countGt15; i++) {
-                const dayNum = 16 + (i * 3) % 18; // 16 - 33 hari
+                const dayNum = 16 + (i * 3) % 18;
                 const ref = `UTM/${codePrefix}/2026/${String(1000 + caseIndex).slice(1)}`;
                 const res = researchersList[(caseIndex * 3) % researchersList.length];
                 const fac = facultiesList[(caseIndex * 2) % facultiesList.length];
@@ -1227,7 +1271,7 @@
 
             // 2. Kes 7-14 Hari
             for (let i = 0; i < count8_14; i++) {
-                const dayNum = 8 + (i * 2) % 7; // 8 - 14 hari
+                const dayNum = 8 + (i * 2) % 7;
                 const ref = `UTM/${codePrefix}/2026/${String(1000 + caseIndex).slice(1)}`;
                 const res = researchersList[(caseIndex * 5) % researchersList.length];
                 const fac = facultiesList[(caseIndex * 3) % facultiesList.length];
@@ -1258,7 +1302,7 @@
 
             // 3. Kes 1-7 Hari (Pantas)
             for (let i = 0; i < count1_7; i++) {
-                const dayNum = 1 + (i % 6); // 1 - 6 hari
+                const dayNum = 1 + (i % 6);
                 const ref = `UTM/${codePrefix}/2026/${String(1000 + caseIndex).slice(1)}`;
                 const res = researchersList[(caseIndex * 7) % researchersList.length];
                 const fac = facultiesList[(caseIndex * 4) % facultiesList.length];
@@ -1313,7 +1357,7 @@
             return `Tempoh ${days} hari: Semakan penyelarasan invois dan baki vot peruntukan geran.`;
         }
 
-        // Fungsi Membuka Modal Maklumat Lengkap Kes
+        // Fungsi Membuka Modal Maklumat Lengkap Kes Helaian 1
         function openProcessCasesModal(processName, initialPeriod = 'all') {
             activeModalProcessName = processName;
             activeModalPeriodFilter = initialPeriod;
@@ -1326,7 +1370,7 @@
             
             document.getElementById('modalProcessBadge').innerText = `${totalCount.toLocaleString()} Permohonan (${pctApp}% Lulus)`;
 
-            // Kira jumlah bagi setiap kategori
+            // Kira jumlah bagi setiap julat tempoh
             const countAll = activeModalCasesList.length;
             const count1_7 = activeModalCasesList.filter(c => c.periodCategory === '1-7').length;
             const count8_14 = activeModalCasesList.filter(c => c.periodCategory === '8-14').length;
@@ -1353,7 +1397,6 @@
         function filterModalCasesByPeriod(period) {
             activeModalPeriodFilter = period;
 
-            // Kemas kini gaya butang tab
             const btnMap = {
                 'all': 'btnFilterCaseAll',
                 '1-7': 'btnFilterCase1_7',
@@ -1363,10 +1406,12 @@
 
             Object.keys(btnMap).forEach(key => {
                 const btn = document.getElementById(btnMap[key]);
-                if (key === period) {
-                    btn.className = "px-3 py-1.5 rounded-lg bg-white font-bold text-utm-maroon shadow-xs transition whitespace-nowrap";
-                } else {
-                    btn.className = "px-3 py-1.5 rounded-lg text-slate-600 hover:text-utm-maroon hover:bg-white/60 transition whitespace-nowrap";
+                if (btn) {
+                    if (key === period) {
+                        btn.className = "px-3 py-1.5 rounded-lg bg-white font-bold text-utm-maroon shadow-xs transition whitespace-nowrap";
+                    } else {
+                        btn.className = "px-3 py-1.5 rounded-lg text-slate-600 hover:text-utm-maroon hover:bg-white/60 transition whitespace-nowrap";
+                    }
                 }
             });
 
@@ -1489,6 +1534,7 @@
             showToast(`Senarai kes bagi "${activeModalProcessName}" berjaya dieksport.`);
         }
 
+        // Penapis Global & Pengiraan Semula Data
         function applyGlobalFilters() {
             const bulanVal = document.getElementById('filterBulan').value;
             const prosesVal = document.getElementById('filterProses').value;
@@ -1557,6 +1603,7 @@
             updateCharts();
         }
 
+        // Inisialisasi Carta Visual Chart.js
         function initCharts() {
             // 1. Carta Bar Bertumpuk (Tempoh Hari)
             const ctxTime = document.getElementById('timeBreakdownChart').getContext('2d');
@@ -1661,6 +1708,7 @@
             });
         }
 
+        // Pengisian Data ke dalam Jadual-Jadual Sistem
         function populateTables() {
             // 1. Jadual Helaian 1: Kecekapan
             const tBodyJan = document.getElementById('janOgosTableBody');
@@ -1686,12 +1734,6 @@
                     const tr = document.createElement('tr');
                     tr.className = "hover:bg-rose-50/40 transition cursor-pointer group";
                     tr.title = "Tekan untuk melihat maklumat lengkap bagi setiap kes permohonan " + r.proses;
-                    
-                    const badge = r.dgt15 >= 20 
-                        ? '<span class="px-2 py-0.5 rounded-full text-2xs font-bold bg-rose-100 text-rose-800">Perhatian (>15h)</span>'
-                        : (r.d8_14 >= 10 
-                            ? '<span class="px-2 py-0.5 rounded-full text-2xs font-bold bg-amber-100 text-amber-800">Sederhana (7-14h)</span>'
-                            : '<span class="px-2 py-0.5 rounded-full text-2xs font-bold bg-emerald-100 text-emerald-800">Cemerlang</span>');
 
                     tr.innerHTML = `
                         <td class="py-3 px-4 font-semibold text-slate-900 group-hover:text-utm-maroon" onclick="openProcessCasesModal('${r.proses}', 'all')">
@@ -1730,7 +1772,6 @@
                 <td class="py-3 px-3 text-center text-slate-500 italic">Tekan mana-mana baris</td>
             `;
 
-            // Memaparkan Senarai Kategori Terperinci untuk 7-14 Hari & >15 Hari
             renderDurationPanels(sumCount7_14, sumCountGt15, totP);
 
             // 2. Jadual Helaian 2: Perbandingan
@@ -1804,7 +1845,6 @@
         }
 
         function renderDurationPanels(count7_14, countGt15, totalP) {
-            // Kemaskini Banner Atas
             document.getElementById('kpiCount7_14').innerText = `${count7_14.toLocaleString()} kes`;
             document.getElementById('kpiCountGt15').innerText = `${countGt15.toLocaleString()} kes`;
 
@@ -1821,7 +1861,7 @@
             const combinedPct = totalP > 0 ? ((combinedCount / totalP) * 100).toFixed(1) : '0.0';
             document.getElementById('combinedDelayedTotal').innerText = `${combinedCount.toLocaleString()} Kes (${combinedPct}%)`;
 
-            // Senarai 7-14 Hari (Boleh Ditekan Terus ke Modal)
+            // Senarai 7-14 Hari
             const list7_14 = filteredJanOgosData
                 .map(item => ({
                     proses: item.proses,
@@ -1857,7 +1897,7 @@
                 });
             }
 
-            // Senarai >15 Hari (Boleh Ditekan Terus ke Modal)
+            // Senarai >15 Hari
             const listGt15 = filteredJanOgosData
                 .map(item => ({
                     proses: item.proses,
@@ -1893,7 +1933,6 @@
                 });
             }
 
-            // Kemas kini top contributor text
             if (list7_14.length > 0) {
                 document.getElementById('kpiTop7_14').innerText = `${list7_14[0].proses} (${list7_14[0].count} kes)`;
             }
@@ -1994,15 +2033,12 @@
                     
                     document.getElementById('currentDataSourceName').innerText = `Fail Dimuat Naik: ${file.name}`;
 
-                    // Sekiranya helaian ditemui, baca data baris
-                    let parsedAny = false;
                     workbook.SheetNames.forEach(sheetName => {
                         const sLower = sheetName.toLowerCase();
                         const sheet = workbook.Sheets[sheetName];
                         const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
 
                         if (json && json.length > 1) {
-                            // Helaian 1: Kecekapan
                             if (sLower.includes('kecekapan') || sLower.includes('proses') || sLower.includes('sheet1')) {
                                 const newItems = [];
                                 for (let i = 1; i < json.length; i++) {
@@ -2021,10 +2057,8 @@
                                 }
                                 if (newItems.length > 0) {
                                     currentJanOgosData = newItems;
-                                    parsedAny = true;
                                 }
                             }
-                            // Helaian 2: Perbandingan
                             if (sLower.includes('banding') || sLower.includes('bil') || sLower.includes('sheet2')) {
                                 const newComp = [];
                                 for (let i = 1; i < json.length; i++) {
@@ -2043,7 +2077,6 @@
                                 }
                                 if (newComp.length > 0) {
                                     currentComparisonData = newComp;
-                                    parsedAny = true;
                                 }
                             }
                         }
@@ -2063,7 +2096,6 @@
             try {
                 const wb = XLSX.utils.book_new();
 
-                // 1. Data Helaian 1
                 const sheet1Data = [
                     ["Proses", "Jumlah Permohonan / Semakan", "Jumlah Kelulusan", "% Kelulusan", "(%) 1-7 Hari", "(%) 8-14 Hari", "(%) >15 Hari"]
                 ];
@@ -2073,7 +2105,6 @@
                 const ws1 = XLSX.utils.aoa_to_sheet(sheet1Data);
                 XLSX.utils.book_append_sheet(wb, ws1, "Kecekapan Proses Jan-Ogos");
 
-                // 2. Data Helaian 2
                 const sheet2Data = [
                     ["Proses", "Bil 11 Permohonan", "Bil 11 Kelulusan", "Bil 12 Permohonan", "Bil 12 Kelulusan", "Peningkatan Permohonan", "Peningkatan Kelulusan"]
                 ];
@@ -2083,7 +2114,6 @@
                 const ws2 = XLSX.utils.aoa_to_sheet(sheet2Data);
                 XLSX.utils.book_append_sheet(wb, ws2, "Perbandingan Bil 11 vs 12");
 
-                // 3. Data Helaian 3
                 const sheet3Data = [
                     ["Status", "Bil. 11/2026", "Bil. 12/2026", "% Bil. 12", "Peningkatan"]
                 ];
@@ -2246,6 +2276,7 @@
             }, 3000);
         }
 
+        // Pemuatan Mula Laman (Window Onload)
         window.onload = function() {
             initCharts();
             populateTables();
