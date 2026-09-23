@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UTM PMMD - Papan Pemuka Kecekapan Proses Permohonan</title>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        utm: {
+                            maroon: '#7A1315',
+                            dark: '#580c0e',
+                            gold: '#D4AF37',
+                            lightgold: '#FDF8EA',
+                            accent: '#9B1B1E'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .tab-btn.active {
+            color: #7A1315;
+            border-bottom-color: #7A1315;
+            background-color: #fff1f2;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-utm-maroon flex items-center justify-center text-white font-extrabold text-lg shadow-sm">
+                        UTM
+                    </div>
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <h1 class="text-base sm:text-lg font-bold text-slate-900 leading-tight">PMMD Performance Analysis</h1>
+                            <span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider border border-amber-300">Ascend 2030</span>
+                        </div>
+                        <p class="text-xs text-slate-500 hidden sm:block">Kecekapan Proses Permohonan & Semakan &bull; Data sehingga 26-08-2026</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-3">
+                    <div class="hidden md:flex items-center bg-slate-100 text-slate-600 text-xs px-3 py-1.5 rounded-lg font-medium border border-slate-200">
+                        <i data-lucide="calendar" class="w-3.5 h-3.5 mr-1.5 text-utm-maroon"></i>
+                        <span id="activePeriodLabel">Januari - Ogos 2026</span>
+                    </div>
+                    <button onclick="downloadCSVReport()" class="inline-flex items-center space-x-1.5 bg-utm-maroon hover:bg-utm-dark text-white px-3.5 py-1.5 rounded-xl text-xs font-semibold shadow-sm transition">
+                        <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                        <span class="hidden sm:inline">Eksport CSV</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="border-t border-slate-100 bg-slate-50/70">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex space-x-1 overflow-x-auto py-1">
+                <button onclick="switchTab('kecekapan')" id="tabBtn-kecekapan" class="tab-btn active inline-flex items-center space-x-2 px-3.5 py-2 text-xs font-semibold rounded-lg border-b-2 border-transparent text-slate-600 hover:text-utm-maroon hover:bg-white transition whitespace-nowrap">
+                    <i data-lucide="gauge" class="w-4 h-4"></i>
+                    <span>1. Kecekapan Proses (Jan-Ogos)</span>
+                </button>
+                <button onclick="switchTab('perbandingan')" id="tabBtn-perbandingan" class="tab-btn inline-flex items-center space-x-2 px-3.5 py-2 text-xs font-semibold rounded-lg border-b-2 border-transparent text-slate-600 hover:text-utm-maroon hover:bg-white transition whitespace-nowrap">
+                    <i data-lucide="git-compare" class="w-4 h-4"></i>
+                    <span>2. Perbandingan Bil. 11 vs Bil. 12</span>
+                </button>
+                <button onclick="switchTab('gra')" id="tabBtn-gra" class="tab-btn inline-flex items-center space-x-2 px-3.5 py-2 text-xs font-semibold rounded-lg border-b-2 border-transparent text-slate-600 hover:text-utm-maroon hover:bg-white transition whitespace-nowrap">
+                    <i data-lucide="pie-chart" class="w-4 h-4"></i>
+                    <span>3. Status Lantikan GRA</span>
+                </button>
+                <button onclick="switchTab('semakan')" id="tabBtn-semakan" class="tab-btn inline-flex items-center space-x-2 px-3.5 py-2 text-xs font-semibold rounded-lg border-b-2 border-transparent text-slate-600 hover:text-utm-maroon hover:bg-white transition whitespace-nowrap">
+                    <i data-lucide="search-check" class="w-4 h-4"></i>
+                    <span>4. Semakan Permohonan & Audit</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full space-y-6">
+
+        <!-- Bar Penapis Global (Bulan & Jenis Proses) -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+            <div class="flex items-center space-x-2.5">
+                <div class="w-9 h-9 rounded-xl bg-red-50 text-utm-maroon flex items-center justify-center font-bold">
+                    <i data-lucide="filter" class="w-4 h-4"></i>
+                </div>
+                <div>
+                    <span class="text-xs font-bold uppercase text-slate-900 tracking-wider">Penapis Analisis</span>
+                    <p class="text-[11px] text-slate-400">Pilih bulan semakan dan jenis proses untuk analisis bersasar</p>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-3">
+                <!-- Filter 1: Bulan Semakan -->
+                <div class="flex items-center space-x-2 min-w-[200px] flex-1 sm:flex-none">
+                    <label for="filterBulan" class="text-xs font-semibold text-slate-600 flex items-center space-x-1">
+                        <i data-lucide="calendar-range" class="w-3.5 h-3.5 text-slate-400"></i>
+                        <span>Bulan:</span>
+                    </label>
+                    <select id="filterBulan" onchange="applyGlobalFilters()" class="text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-utm-maroon flex-1 cursor-pointer">
+                        <option value="all">Semua Bulan (Jan - Ogos Kumulatif)</option>
+                        <option value="1">Januari 2026</option>
+                        <option value="2">Februari 2026</option>
+                        <option value="3">Mac 2026</option>
+                        <option value="4">April 2026</option>
+                        <option value="5">Mei 2026</option>
+                        <option value="6">Jun 2026</option>
+                        <option value="7">Julai 2026</option>
+                        <option value="8">Ogos 2026 (Data Terkini)</option>
+                    </select>
+                </div>
+
+                <!-- Filter 2: Jenis Proses -->
+                <div class="flex items-center space-x-2 min-w-[230px] flex-1 sm:flex-none">
+                    <label for="filterProses" class="text-xs font-semibold text-slate-600 flex items-center space-x-1">
+                        <i data-lucide="layers" class="w-3.5 h-3.5 text-slate-400"></i>
+                        <span>Proses:</span>
+                    </label>
+                    <select id="filterProses" onchange="applyGlobalFilters()" class="text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-utm-maroon flex-1 cursor-pointer">
+                        <option value="all">Semua Jenis Proses (10 Kategori)</option>
+                        <option value="Aktiviti dalam negara">Aktiviti dalam negara</option>
+                        <option value="Aktiviti luar negara">Aktiviti luar negara</option>
+                        <option value="Pelantikan RA/RO">Pelantikan RA/RO</option>
+                        <option value="Pelantikan GRA/SRA">Pelantikan GRA/SRA</option>
+                        <option value="Tuntutan SRA">Tuntutan SRA</option>
+                        <option value="Semakan End Report">Semakan End Report</option>
+                        <option value="Semakan Progress Report">Semakan Progress Report</option>
+                        <option value="Pengaktifan Geran">Pengaktifan Geran</option>
+                        <option value="Pertukaran ketua/ahli projek">Pertukaran ketua/ahli projek</option>
+                        <option value="Perlanjutan tempoh">Perlanjutan tempoh</option>
+                    </select>
+                </div>
+
+                <!-- Butang Reset -->
+                <button onclick="resetGlobalFilters()" class="inline-flex items-center space-x-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-800 text-xs font-semibold rounded-xl transition">
+                    <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                    <span>Set Semula</span>
+                </button>
+            </div>
+        </div>
+
+        <div id="filterStatusBadge" class="hidden flex items-center justify-between px-4 py-2 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900">
+            <div class="flex items-center space-x-2">
+                <i data-lucide="info" class="w-4 h-4 text-amber-600 flex-shrink-0"></i>
+                <span>Paparan data sedang ditapis mengikut: <strong id="filterStatusText"></strong></span>
+            </div>
+            <span class="text-[10px] font-bold uppercase bg-amber-200/70 px-2 py-0.5 rounded text-amber-800" id="filterStatusCount">10 Rekod</span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+                <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+                    <span>JUMLAH PERMOHONAN</span>
+                    <div class="p-2 rounded-xl bg-slate-100 text-slate-700">
+                        <i data-lucide="files" class="w-4 h-4"></i>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <div class="text-2xl font-extrabold text-slate-900" id="kpiTotalPermohonan">4,270</div>
+                    <p class="text-xs text-emerald-600 font-semibold mt-1 flex items-center" id="kpiDeltaPermohonan">
+                        <i data-lucide="trending-up" class="w-3.5 h-3.5 mr-1"></i>
+                        +148 permohonan berbanding Bil. 11
+                    </p>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+                <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+                    <span>JUMLAH KELULUSAN</span>
+                    <div class="p-2 rounded-xl bg-emerald-50 text-emerald-700">
+                        <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <div class="text-2xl font-extrabold text-slate-900" id="kpiTotalKelulusan">4,187</div>
+                    <p class="text-xs text-emerald-600 font-semibold mt-1 flex items-center" id="kpiDeltaKelulusan">
+                        <i data-lucide="trending-up" class="w-3.5 h-3.5 mr-1"></i>
+                        +118 kelulusan bertambah
+                    </p>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+                <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+                    <span>KADAR KELULUSAN KESELURUHAN</span>
+                    <div class="p-2 rounded-xl bg-amber-50 text-amber-700">
+                        <i data-lucide="award" class="w-4 h-4"></i>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <div class="text-2xl font-extrabold text-slate-900" id="kpiAvgKelulusan">98.1%</div>
+                    <p class="text-xs text-slate-500 mt-1" id="kpiKelulusanSub">
+                        4 kategori mencapai kadar 100% kelulusan
+                    </p>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+                <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+                    <span>TEMPOH PANTAS (1-7 HARI)</span>
+                    <div class="p-2 rounded-xl bg-blue-50 text-blue-700">
+                        <i data-lucide="zap" class="w-4 h-4"></i>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <div class="text-2xl font-extrabold text-slate-900" id="kpiAvgSlaPantas">89.2%</div>
+                    <p class="text-xs text-slate-500 mt-1">
+                        Purata wajaran siap dalam 7 hari bekerja
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div id="tabContent-kecekapan" class="space-y-6">
+            <!-- Dua Graf Utama Slide 2 -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Graf 1: Tempoh Pemprosesan -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="text-sm font-bold text-slate-900 flex items-center space-x-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
+                                <span>% Proses dan Semakan Permohonan (Jan - Ogos)</span>
+                            </h3>
+                            <p class="text-xs text-slate-400">Pecahan nisbah masa: 1-7 Hari, 8-14 Hari & >15 Hari</p>
+                        </div>
+                    </div>
+                    <div class="h-64 sm:h-72">
+                        <canvas id="timeBreakdownChart"></canvas>
+                    </div>
+                    <div class="mt-4 flex flex-wrap items-center justify-center gap-4 text-xs font-medium text-slate-600">
+                        <div class="flex items-center space-x-1.5">
+                            <span class="w-3 h-3 rounded-sm bg-blue-600"></span>
+                            <span>(%) 1-7 Hari</span>
+                        </div>
+                        <div class="flex items-center space-x-1.5">
+                            <span class="w-3 h-3 rounded-sm bg-amber-500"></span>
+                            <span>(%) 8-14 Hari</span>
+                        </div>
+                        <div class="flex items-center space-x-1.5">
+                            <span class="w-3 h-3 rounded-sm bg-emerald-600"></span>
+                            <span>(%) >15 Hari</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Graf 2: % Kelulusan Mengikut Kategori -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="text-sm font-bold text-slate-900 flex items-center space-x-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span>
+                                <span>% Kelulusan Mengikut Kategori Proses</span>
+                            </h3>
+                            <p class="text-xs text-slate-400">Peringkat peratusan kelulusan dari 88% hingga 100%</p>
+                        </div>
+                    </div>
+                    <div class="h-64 sm:h-72">
+                        <canvas id="approvalRateChart"></canvas>
+                    </div>
+                    <div class="mt-4 text-center text-xs text-slate-500">
+                        Nota: Semakan Progress Report, End Report, dan Tuntutan SRA merekodkan kelulusan 100%.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Jadual Lengkap Kecekapan Slide 2 -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+                <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-900">Jadual Terperinci Kecekapan Proses (Jan - Ogos)</h3>
+                        <p class="text-xs text-slate-400">Data sumber tepat mengikut Slaid 2 pembentangan PMMD</p>
+                    </div>
+                    <div class="relative w-full sm:w-64">
+                        <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
+                        <input type="text" id="searchTableJanOgos" oninput="filterTableByName(this.value)" placeholder="Cari jenis proses..." class="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-utm-maroon">
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs text-left">
+                        <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-bold uppercase tracking-wider text-[11px]">
+                            <tr>
+                                <th class="py-3 px-4">Proses</th>
+                                <th class="py-3 px-3 text-right">Jml. Permohonan / Semakan</th>
+                                <th class="py-3 px-3 text-right">Jml. Kelulusan</th>
+                                <th class="py-3 px-3 text-center">% Kelulusan</th>
+                                <th class="py-3 px-3 text-center bg-blue-50/70 text-blue-900">(%) 1-7 Hari</th>
+                                <th class="py-3 px-3 text-center bg-amber-50/70 text-amber-900">(%) 8-14 Hari</th>
+                                <th class="py-3 px-3 text-center bg-emerald-50/70 text-emerald-900">(%) >15 Hari</th>
+                                <th class="py-3 px-3 text-center">Status Kecekapan</th>
+                            </tr>
+                        </thead>
+                        <tbody id="janOgosTableBody" class="divide-y divide-slate-100">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-blue-50/70 border border-blue-200 p-4 rounded-2xl flex items-start space-x-3">
+                    <div class="p-2 bg-blue-100 text-blue-700 rounded-xl mt-0.5">
+                        <i data-lucide="check-check" class="w-4 h-4"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-bold text-blue-950 uppercase">Kategori Berkecekapan Tinggi (&ge; 90% Siap dlm 7 Hari)</h4>
+                        <p class="text-xs text-blue-900 mt-1 leading-relaxed">
+                            <strong>Aktiviti Luar Negara (100%)</strong>, <strong>Aktiviti Dalam Negara (99.5%)</strong>, <strong>Tuntutan SRA (98%)</strong>, <strong>Pengaktifan Geran (98%)</strong> dan <strong>Pelantikan RA/RO (93%)</strong> mempamerkan kelajuan pemprosesan amat pantas di peringkat awal.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="bg-amber-50/70 border border-amber-200 p-4 rounded-2xl flex items-start space-x-3">
+                    <div class="p-2 bg-amber-100 text-amber-700 rounded-xl mt-0.5">
+                        <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-bold text-amber-950 uppercase">Kategori Memerlukan Pemantauan Tempoh (>15 Hari)</h4>
+                        <p class="text-xs text-amber-900 mt-1 leading-relaxed">
+                            <strong>Semakan End Report (38% >15 Hari)</strong> dan <strong>Perlanjutan Tempoh (24% >15 Hari)</strong> mengambil masa melebihi 15 hari disebabkan semakan teknikal dokumen kewangan dan pengesahan pencapaian akhir penyelidikan.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tabContent-perbandingan" class="hidden space-y-6">
+            <!-- Graf Perbandingan Bil 11 vs Bil 12 -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-900 flex items-center space-x-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-utm-maroon"></span>
+                            <span>Perbandingan Jumlah Permohonan: Bil. 11/2026 vs Bil. 12/2026</span>
+                        </h3>
+                        <p class="text-xs text-slate-400">Melihat peningkatan permohonan terkini bagi setiap kategori (Slaid 3)</p>
+                    </div>
+                </div>
+                <div class="h-72 sm:h-80">
+                    <canvas id="comparisonBarChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Jadual Slaid 3: Bil 11 vs Bil 12 -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+                <div class="p-4 sm:p-5 border-b border-slate-100">
+                    <h3 class="text-sm font-bold text-slate-900">Jadual Perbandingan Penuh Bil. 11/2026 vs Bil. 12/2026</h3>
+                    <p class="text-xs text-slate-400">Peningkatan kuantiti permohonan dan kelulusan mengikut 10 kategori proses penyelidikan UTM</p>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs text-left">
+                        <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-bold uppercase text-[11px]">
+                            <tr>
+                                <th rowspan="2" class="py-3 px-4 border-r border-slate-200 align-middle">Proses</th>
+                                <th colspan="2" class="py-2 px-3 text-center border-r border-slate-200 bg-slate-100/70">Bil. 11/2026</th>
+                                <th colspan="2" class="py-2 px-3 text-center border-r border-slate-200 bg-amber-100/50 text-amber-900">Bil. 12/2026</th>
+                                <th colspan="2" class="py-2 px-3 text-center bg-emerald-100/60 text-emerald-900">Peningkatan (+)</th>
+                            </tr>
+                            <tr class="border-b border-slate-200">
+                                <th class="py-2 px-3 text-right">Permohonan</th>
+                                <th class="py-2 px-3 text-right border-r border-slate-200">Kelulusan</th>
+                                <th class="py-2 px-3 text-right bg-amber-50/40">Permohonan</th>
+                                <th class="py-2 px-3 text-right border-r border-slate-200 bg-amber-50/40">Kelulusan</th>
+                                <th class="py-2 px-3 text-right bg-emerald-50/30 text-emerald-800">Permohonan</th>
+                                <th class="py-2 px-3 text-right bg-emerald-50/30 text-emerald-800">Kelulusan</th>
+                            </tr>
+                        </thead>
+                        <tbody id="comparisonTableBody" class="divide-y divide-slate-100">
+                            <!-- Populated via JS -->
+                        </tbody>
+                        <tfoot class="bg-slate-100/80 font-bold border-t border-slate-300 text-slate-900">
+                            <tr>
+                                <td class="py-3 px-4 border-r border-slate-200">JUMLAH KESELURUHAN</td>
+                                <td class="py-3 px-3 text-right font-mono">4,122</td>
+                                <td class="py-3 px-3 text-right font-mono border-r border-slate-200">4,069</td>
+                                <td class="py-3 px-3 text-right font-mono text-utm-maroon bg-amber-100/30">4,270</td>
+                                <td class="py-3 px-3 text-right font-mono text-utm-maroon border-r border-slate-200 bg-amber-100/30">4,187</td>
+                                <td class="py-3 px-3 text-right font-mono text-emerald-700 bg-emerald-100/40">+148</td>
+                                <td class="py-3 px-3 text-right font-mono text-emerald-700 bg-emerald-100/40">+118</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="tabContent-gra" class="hidden space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Slaid 4 Carta Donut GRA -->
+                <div class="lg:col-span-5 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-900 flex items-center space-x-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span>
+                            <span>% Status Lantikan GRA (Slide 4)</span>
+                        </h3>
+                        <p class="text-xs text-slate-400 mb-4">Taburan 705 permohonan pelantikan Graduate Research Assistant</p>
+                        
+                        <div class="relative h-60 flex items-center justify-center">
+                            <canvas id="graStatusChart"></canvas>
+                            <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                                <span class="text-3xl font-extrabold text-slate-900">85%</span>
+                                <span class="text-[10px] font-bold text-slate-400 uppercase">Approved</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-xs text-emerald-900 flex items-center justify-between">
+                        <span class="font-semibold">600 Permohonan Diluluskan</span>
+                        <span class="font-mono font-bold bg-emerald-200 px-2 py-0.5 rounded text-emerald-800">85%</span>
+                    </div>
+                </div>
+
+                <!-- Slaid 4 & Slaid 5 Jadual Lantikan GRA -->
+                <div class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden flex flex-col">
+                    <div class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between">
+                        <div>
+                            <h3 class="text-sm font-bold text-slate-900">Status Lantikan GRA & Perbandingan (Slide 4 & 5)</h3>
+                            <p class="text-xs text-slate-400">Pecahan status Bil. 11/2026 vs Bil. 12/2026</p>
+                        </div>
+                        <span class="text-xs font-bold px-2.5 py-1 bg-slate-100 rounded-lg text-slate-600">Total: 705</span>
+                    </div>
+
+                    <div class="overflow-x-auto flex-1">
+                        <table class="w-full text-xs text-left">
+                            <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-bold uppercase text-[11px]">
+                                <tr>
+                                    <th class="py-3 px-4">Status</th>
+                                    <th class="py-3 px-3 text-right">Bil. 11</th>
+                                    <th class="py-3 px-3 text-right bg-amber-50/70">Bil. 12</th>
+                                    <th class="py-3 px-3 text-center">% Bil. 12</th>
+                                    <th class="py-3 px-3 text-right">Peningkatan</th>
+                                </tr>
+                            </thead>
+                            <tbody id="graTableBody" class="divide-y divide-slate-100">
+                                <!-- Populated via JS -->
+                            </tbody>
+                            <tfoot class="bg-slate-100 font-bold text-slate-900">
+                                <tr>
+                                    <td class="py-2.5 px-4">TOTAL</td>
+                                    <td class="py-2.5 px-3 text-right font-mono">648</td>
+                                    <td class="py-2.5 px-3 text-right font-mono text-utm-maroon bg-amber-100/50">705</td>
+                                    <td class="py-2.5 px-3 text-center font-mono">100%</td>
+                                    <td class="py-2.5 px-3 text-right font-mono text-emerald-700">+57</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tabContent-semakan" class="hidden space-y-6">
+            <!-- Kad Carian Semakan -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs">
+                <div class="max-w-2xl">
+                    <h3 class="text-base font-bold text-slate-900">Modul Semakan Status Permohonan Penyelidikan</h3>
+                    <p class="text-xs text-slate-500 mt-1">Masukkan No. Rujukan Permohonan, No. KP atau Nama Pemohon untuk melihat kemajuan proses secara langsung mengikut aliran kerja RMC/PMMD.</p>
+                    
+                    <div class="mt-4 flex flex-col sm:flex-row items-stretch gap-2">
+                        <div class="relative flex-1">
+                            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-3"></i>
+                            <input type="text" id="trackingInput" placeholder="Contoh: UTM-GRA-2026-0881 atau UTM-END-2026-0120" class="w-full pl-10 pr-4 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-utm-maroon font-medium">
+                        </div>
+                        <button onclick="performTrackingSearch()" class="inline-flex items-center justify-center space-x-2 bg-utm-maroon hover:bg-utm-dark text-white px-5 py-2.5 rounded-xl text-xs font-semibold shadow-sm transition">
+                            <i data-lucide="search" class="w-4 h-4"></i>
+                            <span>Semak Status</span>
+                        </button>
+                    </div>
+
+                    <!-- Butang Pantas Ujian -->
+                    <div class="mt-3 flex flex-wrap items-center gap-2 text-2xs text-slate-500">
+                        <span class="text-xs font-medium">Cuba No. Ujian:</span>
+                        <button onclick="quickTestTracking('UTM-GRA-2026-0881')" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 rounded-md font-mono text-slate-700">UTM-GRA-2026-0881</button>
+                        <button onclick="quickTestTracking('UTM-SRA-2026-0412')" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 rounded-md font-mono text-slate-700">UTM-SRA-2026-0412</button>
+                        <button onclick="quickTestTracking('UTM-END-2026-0120')" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 rounded-md font-mono text-slate-700">UTM-END-2026-0120</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hasil Carian & Timeline Aliran Kerja -->
+            <div id="trackingResultBox" class="hidden bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-3">
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <span id="trackRefNo" class="font-mono font-bold text-sm text-utm-maroon"></span>
+                            <span id="trackStatusBadge" class="px-2.5 py-0.5 rounded-full text-2xs font-bold uppercase"></span>
+                        </div>
+                        <h4 id="trackTitle" class="text-base font-bold text-slate-900 mt-1"></h4>
+                        <p class="text-xs text-slate-500">Pemohon: <span id="trackApplicant" class="font-medium text-slate-700"></span> &bull; Tarikh Mohon: <span id="trackDate" class="font-medium text-slate-700"></span></p>
+                    </div>
+                    <div class="text-right sm:text-right">
+                        <div class="text-2xs uppercase text-slate-400 font-bold">Tempoh Masa Terkini</div>
+                        <div id="trackDuration" class="text-sm font-bold text-slate-800"></div>
+                    </div>
+                </div>
+
+                <!-- 4 Peringkat Visual Aliran Kerja -->
+                <div>
+                    <h5 class="text-xs font-bold text-slate-700 uppercase mb-4 tracking-wider">Carta Aliran Peringkat Semakan</h5>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div id="step-1" class="p-3.5 rounded-xl border bg-slate-50 flex items-start space-x-3">
+                            <div class="step-icon w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs bg-slate-200 text-slate-700">1</div>
+                            <div>
+                                <div class="text-xs font-bold text-slate-900">Penyerahan</div>
+                                <div class="text-[11px] text-slate-500 mt-0.5">Dokumen Diterima</div>
+                            </div>
+                        </div>
+                        <div id="step-2" class="p-3.5 rounded-xl border bg-slate-50 flex items-start space-x-3">
+                            <div class="step-icon w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs bg-slate-200 text-slate-700">2</div>
+                            <div>
+                                <div class="text-xs font-bold text-slate-900">Semakan Kerani</div>
+                                <div class="text-[11px] text-slate-500 mt-0.5">Verifikasi Syarat Am</div>
+                            </div>
+                        </div>
+                        <div id="step-3" class="p-3.5 rounded-xl border bg-slate-50 flex items-start space-x-3">
+                            <div class="step-icon w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs bg-slate-200 text-slate-700">3</div>
+                            <div>
+                                <div class="text-xs font-bold text-slate-900">Semakan Pegawai RMC</div>
+                                <div class="text-[11px] text-slate-500 mt-0.5">Pematuhan Bajet/Syarat</div>
+                            </div>
+                        </div>
+                        <div id="step-4" class="p-3.5 rounded-xl border bg-slate-50 flex items-start space-x-3">
+                            <div class="step-icon w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs bg-slate-200 text-slate-700">4</div>
+                            <div>
+                                <div class="text-xs font-bold text-slate-900">Keputusan Akhir</div>
+                                <div class="text-[11px] text-slate-500 mt-0.5">Kelulusan & Notifikasi</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Log Jejak Tindakan (Audit Log) -->
+                <div>
+                    <h5 class="text-xs font-bold text-slate-700 uppercase mb-3 tracking-wider">Log Jejak Tindakan & Nota Pegawai</h5>
+                    <div class="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                        <ul id="trackAuditLogs" class="space-y-3 text-xs text-slate-600">
+                            <!-- Populated via JS -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Senarai Contoh Permohonan Aktif -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+                <div class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between">
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-900">Senarai Permohonan Terkini dalam Pangkalan Data</h3>
+                        <p class="text-xs text-slate-400">Klik baris untuk menyemak maklumat terus</p>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs text-left">
+                        <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-bold uppercase text-[11px]">
+                            <tr>
+                                <th class="py-3 px-4">No. Rujukan</th>
+                                <th class="py-3 px-3">Jenis Permohonan</th>
+                                <th class="py-3 px-3">Pemohon / Ketua Projek</th>
+                                <th class="py-3 px-3">Tarikh Hantar</th>
+                                <th class="py-3 px-3 text-center">Status</th>
+                                <th class="py-3 px-3 text-center">Tindakan</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sampleRecordsTable" class="divide-y divide-slate-100">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="bg-white border-t border-slate-200 py-4 mt-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-400">
+            <div>
+                &copy; 2026 Universiti Teknologi Malaysia (UTM) &bull; Research Management Centre (RMC) / PMMD
+            </div>
+            <div class="flex items-center space-x-4">
+                <span>Pelan Strategik UTM Ascend 2030</span>
+                <span>&bull;</span>
+                <span class="text-slate-600 font-medium">Inovatif, Berdaya Usaha, Global</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal Butiran Permohonan -->
+    <div id="detailModal" class="hidden fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full border border-slate-200 shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                <div class="flex items-center space-x-2">
+                    <div class="w-7 h-7 rounded-lg bg-utm-maroon text-white flex items-center justify-center font-bold text-xs">
+                        <i data-lucide="file-text" class="w-4 h-4"></i>
+                    </div>
+                    <h3 class="text-sm font-bold text-slate-900">Maklumat Lengkap Permohonan</h3>
+                </div>
+                <button onclick="closeDetailModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-4 text-xs" id="detailModalBody">
+                <!-- Populated dynamically -->
+            </div>
+            <div class="p-4 bg-slate-50 border-t border-slate-100 flex justify-end">
+                <button onclick="closeDetailModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-xl text-xs transition">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Kotak Mesej Toast -->
+    <div id="toastBox" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="bg-slate-900 text-white px-4 py-3 rounded-xl shadow-lg flex items-center space-x-3 text-xs">
+            <i data-lucide="check-circle" id="toastIcon" class="w-4 h-4 text-emerald-400"></i>
+            <span id="toastMsg" class="font-medium">Mesej berjaya</span>
+        </div>
+    </div>
+
+    <script>
+        // Slaid 2: Kecekapan Proses Permohonan dan Semakan Permohonan (Jan - Ogos)
+        const janOgosData = [
+            { proses: "Aktiviti dalam negara", permohonan: 906, kelulusan: 795, pctKelulusan: 88, d1_7: 99.5, d8_14: 0.3, dgt15: 0.3 },
+            { proses: "Aktiviti luar negara", permohonan: 112, kelulusan: 99, pctKelulusan: 88, d1_7: 100.0, d8_14: 0.0, dgt15: 0.0 },
+            { proses: "Pelantikan RA/RO", permohonan: 199, kelulusan: 180, pctKelulusan: 90, d1_7: 93.0, d8_14: 7.0, dgt15: 0.0 },
+            { proses: "Pelantikan GRA/SRA", permohonan: 878, kelulusan: 852, pctKelulusan: 97, d1_7: 82.0, d8_14: 17.0, dgt15: 1.0 },
+            { proses: "Tuntutan SRA", permohonan: 468, kelulusan: 468, pctKelulusan: 100, d1_7: 98.0, d8_14: 2.0, dgt15: 0.0 },
+            { proses: "Semakan End Report", permohonan: 128, kelulusan: 128, pctKelulusan: 100, d1_7: 63.0, d8_14: 0.0, dgt15: 38.0 },
+            { proses: "Semakan Progress Report", permohonan: 1120, kelulusan: 1120, pctKelulusan: 100, d1_7: 89.0, d8_14: 0.0, dgt15: 11.0 },
+            { proses: "Pengaktifan Geran", permohonan: 117, kelulusan: 111, pctKelulusan: 95, d1_7: 98.0, d8_14: 1.0, dgt15: 1.0 },
+            { proses: "Pertukaran ketua/ahli projek", permohonan: 114, kelulusan: 113, pctKelulusan: 99, d1_7: 85.0, d8_14: 9.0, dgt15: 6.0 },
+            { proses: "Perlanjutan tempoh", permohonan: 328, kelulusan: 321, pctKelulusan: 98, d1_7: 63.0, d8_14: 13.0, dgt15: 24.0 }
+        ];
+
+        // Slaid 3: Perbandingan Bil. 11/2026 vs Bil. 12/2026
+        const comparisonData = [
+            { proses: "Aktiviti dalam negara", p11: 855, k11: 757, p12: 906, k12: 795, dP: 51, dK: 38 },
+            { proses: "Aktiviti luar negara", p11: 96, k11: 81, p12: 112, k12: 99, dP: 16, dK: 18 },
+            { proses: "Pelantikan RA/RO", p11: 189, k11: 177, p12: 199, k12: 180, dP: 10, dK: 3 },
+            { proses: "Pelantikan GRA/SRA", p11: 803, k11: 794, p12: 878, k12: 852, dP: 75, dK: 58 },
+            { proses: "Tuntutan SRA", p11: 441, k11: 434, p12: 468, k12: 468, dP: 27, dK: 34 },
+            { proses: "Semakan End Report", p11: 119, k11: 119, p12: 128, k12: 128, dP: 9, dK: 9 },
+            { proses: "Semakan Progress Report", p11: 1070, k11: 1070, p12: 1120, k12: 1120, dP: 50, dK: 50 },
+            { proses: "Pengaktifan Geran", p11: 115, k11: 111, p12: 117, k12: 111, dP: 2, dK: 0 },
+            { proses: "Pertukaran ketua/ahli projek", p11: 114, k11: 113, p12: 114, k12: 113, dP: 0, dK: 0 },
+            { proses: "Perlanjutan tempoh", p11: 320, k11: 313, p12: 328, k12: 321, dP: 8, dK: 8 }
+        ];
+
+        // Slaid 4 & Slaid 5: Status Lantikan GRA
+        const graStatusData = [
+            { status: "Approved", count: 600, pct: 85, b11: 566, b12: 600, diff: 34, color: '#16a34a' },
+            { status: "Draft", count: 43, pct: 6, b11: 19, b12: 43, diff: 24, color: '#ea580c' },
+            { status: "Amendment by clerk", count: 26, pct: 4, b11: 26, b12: 26, diff: 0, color: '#f59e0b' },
+            { status: "Not verify", count: 11, pct: 1, b11: 10, b12: 11, diff: 1, color: '#64748b' },
+            { status: "Amendment by officer", count: 8, pct: 1, b11: 5, b12: 8, diff: 3, color: '#d97706' },
+            { status: "Verify", count: 7, pct: 1, b11: 4, b12: 7, diff: 3, color: '#0284c7' },
+            { status: "Pending verification from clerk", count: 4, pct: 1, b11: 0, b12: 4, diff: 4, color: '#0ea5e9' },
+            { status: "Pending", count: 4, pct: 1, b11: 17, b12: 4, diff: -13, color: '#8b5cf6' },
+            { status: "Not approved", count: 2, pct: 0, b11: 1, b12: 2, diff: 1, color: '#ef4444' },
+            { status: "Pending approval from officer (RMC)", count: 0, pct: 0, b11: 0, b12: 0, diff: 0, color: '#94a3b8' }
+        ];
+
+        // Data sampel untuk modul semakan
+        const sampleApplications = [
+            {
+                ref: "UTM-GRA-2026-0881",
+                type: "Pelantikan GRA/SRA",
+                applicant: "Prof. Madya Dr. Norhidayah binti Ahmad",
+                date: "14 Ogos 2026",
+                duration: "3 Hari (Pantas)",
+                status: "Approved",
+                step: 4,
+                logs: [
+                    "14/08/2026 09:30 - Permohonan dihantar melalui Portal RMC.",
+                    "15/08/2026 11:15 - Disemak dan disahkan oleh Kerani PMMD (Lengkap).",
+                    "16/08/2026 14:00 - Kelulusan teknikal peruntukan oleh Pegawai RMC.",
+                    "17/08/2026 10:00 - Surat pelantikan rasmi dijana dan diemelkan kepada GRA."
+                ]
+            },
+            {
+                ref: "UTM-SRA-2026-0412",
+                type: "Tuntutan SRA",
+                applicant: "Dr. Mohd Faisal bin Ramli",
+                date: "20 Ogos 2026",
+                duration: "2 Hari (Pantas)",
+                status: "Approved",
+                step: 4,
+                logs: [
+                    "20/08/2026 14:20 - Borang tuntutan dimuat naik bersama resit perbelanjaan.",
+                    "21/08/2026 09:00 - Pengesahan semakan resit & baki vote geran.",
+                    "22/08/2026 11:30 - Tuntutan diluluskan untuk pemindahan pembayaran oleh Bendahari."
+                ]
+            },
+            {
+                ref: "UTM-END-2026-0120",
+                type: "Semakan End Report",
+                applicant: "Prof. Dr. Azman bin Hassan",
+                date: "02 Ogos 2026",
+                duration: "18 Hari (>15 Hari)",
+                status: "Pending Verification",
+                step: 2,
+                logs: [
+                    "02/08/2026 16:00 - Laporan akhir geran penyelidikan dimuat naik.",
+                    "08/08/2026 10:30 - Semakan penerbitan Scopus & paten oleh pegawai.",
+                    "20/08/2026 15:45 - Menunggu pengesahan audit kewangan penutupan akaun geran."
+                ]
+            },
+            {
+                ref: "UTM-ACT-2026-0099",
+                type: "Aktiviti luar negara",
+                applicant: "Dr. Nurul Izzati binti Zulkifli",
+                date: "18 Ogos 2026",
+                duration: "4 Hari (Pantas)",
+                status: "Approved",
+                step: 4,
+                logs: [
+                    "18/08/2026 08:30 - Permohonan lawatan persidangan antarabangsa Jepun dihantar.",
+                    "19/08/2026 11:00 - Semakan peruntukan tiket dan penginapan diluluskan.",
+                    "22/08/2026 09:15 - Kelulusan kelulusan Naib Canselor / RMC dikeluarkan."
+                ]
+            }
+        ];
+
+        // Nisbah anggaran bulanan untuk simulasi penapis bulan
+        const monthlyWeights = {
+            1: 0.10, 2: 0.11, 3: 0.13, 4: 0.12, 5: 0.14, 6: 0.13, 7: 0.13, 8: 0.14
+        };
+
+        const monthNames = {
+            1: "Januari 2026", 2: "Februari 2026", 3: "Mac 2026", 4: "April 2026",
+            5: "Mei 2026", 6: "Jun 2026", 7: "Julai 2026", 8: "Ogos 2026"
+        };
+
+        let filteredJanOgosData = [...janOgosData];
+        let filteredComparisonData = [...comparisonData];
+
+        // Carta rujukan
+        let timeChart = null;
+        let approvalChart = null;
+        let comparisonChart = null;
+        let graChart = null;
+
+        function initCharts() {
+            // 1. Bar Bertumpuk (Time breakdown)
+            const ctxTime = document.getElementById('timeBreakdownChart').getContext('2d');
+            timeChart = new Chart(ctxTime, {
+                type: 'bar',
+                data: {
+                    labels: filteredJanOgosData.map(d => d.proses),
+                    datasets: [
+                        { label: '(%) 1-7 Hari', data: filteredJanOgosData.map(d => d.d1_7), backgroundColor: '#2563eb', borderRadius: 4 },
+                        { label: '(%) 8-14 Hari', data: filteredJanOgosData.map(d => d.d8_14), backgroundColor: '#f59e0b', borderRadius: 4 },
+                        { label: '(%) >15 Hari', data: filteredJanOgosData.map(d => d.dgt15), backgroundColor: '#059669', borderRadius: 4 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { stacked: true, ticks: { font: { size: 9 }, maxRotation: 45, minRotation: 25 }, grid: { display: false } },
+                        y: { stacked: true, max: 100, ticks: { callback: v => v + '%' }, grid: { color: '#f1f5f9' } }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => ctx.dataset.label + ': ' + ctx.raw + '%'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 2. Bar Mendatar (% Kelulusan)
+            const ctxApp = document.getElementById('approvalRateChart').getContext('2d');
+            const sorted = [...filteredJanOgosData].sort((a, b) => a.pctKelulusan - b.pctKelulusan);
+            approvalChart = new Chart(ctxApp, {
+                type: 'bar',
+                data: {
+                    labels: sorted.map(d => d.proses),
+                    datasets: [{
+                        label: '% Kelulusan',
+                        data: sorted.map(d => d.pctKelulusan),
+                        backgroundColor: sorted.map(d => d.pctKelulusan === 100 ? '#15803d' : '#22c55e'),
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { min: 70, max: 102, ticks: { callback: v => v + '%' }, grid: { color: '#f8fafc' } },
+                        y: { ticks: { font: { size: 9 } }, grid: { display: false } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // 3. Perbandingan Bil 11 vs Bil 12
+            const ctxComp = document.getElementById('comparisonBarChart').getContext('2d');
+            comparisonChart = new Chart(ctxComp, {
+                type: 'bar',
+                data: {
+                    labels: filteredComparisonData.map(d => d.proses),
+                    datasets: [
+                        { label: 'Bil. 11/2026', data: filteredComparisonData.map(d => d.p11), backgroundColor: '#94a3b8', borderRadius: 4 },
+                        { label: 'Bil. 12/2026', data: filteredComparisonData.map(d => d.p12), backgroundColor: '#7A1315', borderRadius: 4 },
+                        { label: 'Peningkatan (+)', data: filteredComparisonData.map(d => d.dP), backgroundColor: '#10b981', borderRadius: 4 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } }
+                    },
+                    scales: {
+                        x: { ticks: { font: { size: 9 }, maxRotation: 40, minRotation: 20 }, grid: { display: false } },
+                        y: { grid: { color: '#f1f5f9' } }
+                    }
+                }
+            });
+
+            // 4. Donut Status GRA
+            const ctxGra = document.getElementById('graStatusChart').getContext('2d');
+            graChart = new Chart(ctxGra, {
+                type: 'doughnut',
+                data: {
+                    labels: graStatusData.map(d => d.status),
+                    datasets: [{
+                        data: graStatusData.map(d => d.count),
+                        backgroundColor: graStatusData.map(d => d.color),
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '72%',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => `${ctx.label}: ${ctx.raw} (${graStatusData[ctx.dataIndex].pct}%)`
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function populateTables() {
+            // Jadual 1: Jan - Ogos
+            const tBodyJan = document.getElementById('janOgosTableBody');
+            tBodyJan.innerHTML = '';
+            
+            if (filteredJanOgosData.length === 0) {
+                tBodyJan.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-slate-400">Tiada proses sepadan dengan penapis.</td></tr>`;
+            } else {
+                filteredJanOgosData.forEach(r => {
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-slate-50 transition";
+                    const badge = r.dgt15 >= 20 
+                        ? '<span class="px-2 py-0.5 rounded-full text-2xs font-bold bg-amber-100 text-amber-800">Perhatian (>15h)</span>'
+                        : '<span class="px-2 py-0.5 rounded-full text-2xs font-bold bg-emerald-100 text-emerald-800">Cemerlang</span>';
+
+                    tr.innerHTML = `
+                        <td class="py-3 px-4 font-semibold text-slate-800">${r.proses}</td>
+                        <td class="py-3 px-3 text-right font-mono">${r.permohonan.toLocaleString()}</td>
+                        <td class="py-3 px-3 text-right font-mono font-bold text-slate-900">${r.kelulusan.toLocaleString()}</td>
+                        <td class="py-3 px-3 text-center font-bold text-emerald-700">${r.pctKelulusan}%</td>
+                        <td class="py-3 px-3 text-center bg-blue-50/40 font-bold text-blue-800">${r.d1_7}%</td>
+                        <td class="py-3 px-3 text-center bg-amber-50/40 text-amber-800">${r.d8_14}%</td>
+                        <td class="py-3 px-3 text-center bg-emerald-50/40 text-emerald-800">${r.dgt15}%</td>
+                        <td class="py-3 px-3 text-center">${badge}</td>
+                    `;
+                    tBodyJan.appendChild(tr);
+                });
+            }
+
+            // Jadual 2: Perbandingan
+            const tBodyComp = document.getElementById('comparisonTableBody');
+            tBodyComp.innerHTML = '';
+            filteredComparisonData.forEach(r => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition";
+                tr.innerHTML = `
+                    <td class="py-2.5 px-4 font-semibold text-slate-800 border-r border-slate-200">${r.proses}</td>
+                    <td class="py-2.5 px-3 text-right font-mono text-slate-600">${r.p11}</td>
+                    <td class="py-2.5 px-3 text-right font-mono text-slate-600 border-r border-slate-200">${r.k11}</td>
+                    <td class="py-2.5 px-3 text-right font-mono font-bold text-slate-900 bg-amber-50/30">${r.p12}</td>
+                    <td class="py-2.5 px-3 text-right font-mono font-bold text-slate-900 border-r border-slate-200 bg-amber-50/30">${r.k12}</td>
+                    <td class="py-2.5 px-3 text-right font-mono font-bold ${r.dP > 0 ? 'text-emerald-700' : 'text-slate-400'}">${r.dP > 0 ? '+' + r.dP : r.dP}</td>
+                    <td class="py-2.5 px-3 text-right font-mono font-bold ${r.dK > 0 ? 'text-emerald-700' : 'text-slate-400'}">${r.dK > 0 ? '+' + r.dK : r.dK}</td>
+                `;
+                tBodyComp.appendChild(tr);
+            });
+
+            // Jadual 3: Status GRA
+            const tBodyGra = document.getElementById('graTableBody');
+            tBodyGra.innerHTML = '';
+            graStatusData.forEach(r => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition";
+                const diffCls = r.diff > 0 ? 'text-emerald-700 font-bold' : (r.diff < 0 ? 'text-rose-600 font-bold' : 'text-slate-400');
+                const diffTxt = r.diff > 0 ? '+' + r.diff : r.diff;
+
+                tr.innerHTML = `
+                    <td class="py-2 px-4 font-medium text-slate-800 flex items-center space-x-2">
+                        <span class="w-2.5 h-2.5 rounded-full" style="background-color: ${r.color}"></span>
+                        <span>${r.status}</span>
+                    </td>
+                    <td class="py-2 px-3 text-right font-mono">${r.b11}</td>
+                    <td class="py-2 px-3 text-right font-mono font-bold bg-amber-50/40">${r.b12}</td>
+                    <td class="py-2 px-3 text-center font-bold">${r.pct}%</td>
+                    <td class="py-2 px-3 text-right font-mono ${diffCls}">${diffTxt}</td>
+                `;
+                tBodyGra.appendChild(tr);
+            });
+
+            // Jadual 4: Senarai Contoh Permohonan
+            const tBodySample = document.getElementById('sampleRecordsTable');
+            tBodySample.innerHTML = '';
+            sampleApplications.forEach(app => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition cursor-pointer";
+                tr.onclick = () => showDetailModal(app.ref);
+
+                let badgeColor = app.status === 'Approved' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800';
+
+                tr.innerHTML = `
+                    <td class="py-3 px-4 font-mono font-bold text-utm-maroon">${app.ref}</td>
+                    <td class="py-3 px-3 font-semibold text-slate-800">${app.type}</td>
+                    <td class="py-3 px-3 text-slate-600">${app.applicant}</td>
+                    <td class="py-3 px-3 text-slate-500">${app.date}</td>
+                    <td class="py-3 px-3 text-center">
+                        <span class="px-2 py-0.5 rounded-full text-2xs font-bold ${badgeColor}">${app.status}</span>
+                    </td>
+                    <td class="py-3 px-3 text-center">
+                        <button class="text-slate-500 hover:text-utm-maroon font-semibold inline-flex items-center space-x-1">
+                            <span>Butiran</span>
+                            <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </td>
+                `;
+                tBodySample.appendChild(tr);
+            });
+            lucide.createIcons();
+        }
+
+        function applyGlobalFilters() {
+            const selectedMonth = document.getElementById('filterBulan').value;
+            const selectedProcess = document.getElementById('filterProses').value;
+
+            const isFiltered = (selectedMonth !== 'all' || selectedProcess !== 'all');
+            const badge = document.getElementById('filterStatusBadge');
+            const badgeText = document.getElementById('filterStatusText');
+            const badgeCount = document.getElementById('filterStatusCount');
+            const activePeriodLabel = document.getElementById('activePeriodLabel');
+
+            let monthText = selectedMonth === 'all' ? 'Januari - Ogos 2026' : monthNames[selectedMonth];
+            activePeriodLabel.innerText = monthText;
+
+            if (isFiltered) {
+                badge.classList.remove('hidden');
+                let parts = [];
+                if (selectedMonth !== 'all') parts.push(`Bulan: ${monthNames[selectedMonth]}`);
+                if (selectedProcess !== 'all') parts.push(`Proses: "${selectedProcess}"`);
+                badgeText.innerText = parts.join(' | ');
+            } else {
+                badge.classList.add('hidden');
+            }
+
+            let weight = (selectedMonth === 'all') ? 1.0 : (monthlyWeights[selectedMonth] || 0.125);
+            let baseList = janOgosData;
+            if (selectedProcess !== 'all') {
+                baseList = janOgosData.filter(d => d.proses.toLowerCase() === selectedProcess.toLowerCase());
+            }
+
+            filteredJanOgosData = baseList.map(item => {
+                if (selectedMonth === 'all') {
+                    return { ...item };
+                } else {
+                    const monthlyP = Math.max(1, Math.round(item.permohonan * weight));
+                    const monthlyK = Math.min(monthlyP, Math.max(1, Math.round(item.kelulusan * weight)));
+                    const calcPct = Math.round((monthlyK / monthlyP) * 100);
+                    return {
+                        ...item,
+                        permohonan: monthlyP,
+                        kelulusan: monthlyK,
+                        pctKelulusan: item.pctKelulusan === 100 ? 100 : calcPct
+                    };
+                }
+            });
+
+            if (selectedProcess !== 'all') {
+                filteredComparisonData = comparisonData.filter(d => d.proses.toLowerCase() === selectedProcess.toLowerCase());
+            } else {
+                filteredComparisonData = [...comparisonData];
+            }
+
+            badgeCount.innerText = `${filteredJanOgosData.length} Kategori Dipaparkan`;
+
+            updateKPIs(selectedMonth, selectedProcess);
+            updateCharts();
+            populateTables();
+            showToast(`Penapis dikemas kini (${filteredJanOgosData.length} proses).`);
+        }
+
+        function updateKPIs(month, process) {
+            const totalP = filteredJanOgosData.reduce((a, b) => a + b.permohonan, 0);
+            const totalK = filteredJanOgosData.reduce((a, b) => a + b.kelulusan, 0);
+            const avgPct = totalP > 0 ? ((totalK / totalP) * 100).toFixed(1) : '0.0';
+
+            let weightedFast = 0;
+            if (totalP > 0) {
+                weightedFast = filteredJanOgosData.reduce((a, b) => a + (b.d1_7 * b.permohonan), 0) / totalP;
+            }
+
+            document.getElementById('kpiTotalPermohonan').innerText = totalP.toLocaleString();
+            document.getElementById('kpiTotalKelulusan').innerText = totalK.toLocaleString();
+            document.getElementById('kpiAvgKelulusan').innerText = avgPct + '%';
+            document.getElementById('kpiAvgSlaPantas').innerText = weightedFast.toFixed(1) + '%';
+
+            const deltaP = document.getElementById('kpiDeltaPermohonan');
+            const deltaK = document.getElementById('kpiDeltaKelulusan');
+            const kelSub = document.getElementById('kpiKelulusanSub');
+
+            if (month !== 'all' || process !== 'all') {
+                deltaP.innerHTML = `<span class="text-slate-500 font-medium">Berdasarkan pilihan penapis semasa</span>`;
+                deltaK.innerHTML = `<span class="text-slate-500 font-medium">${totalK} kelulusan daripada ${totalP} permohonan</span>`;
+                const count100 = filteredJanOgosData.filter(d => d.pctKelulusan === 100).length;
+                kelSub.innerText = `${count100} daripada ${filteredJanOgosData.length} kategori capai kadar 100%`;
+            } else {
+                deltaP.innerHTML = `<i data-lucide="trending-up" class="w-3.5 h-3.5 mr-1"></i>+148 permohonan berbanding Bil. 11`;
+                deltaK.innerHTML = `<i data-lucide="trending-up" class="w-3.5 h-3.5 mr-1"></i>+118 kelulusan bertambah`;
+                kelSub.innerText = `4 kategori mencapai kadar 100%`;
+            }
+            lucide.createIcons();
+        }
+
+        function updateCharts() {
+            if (timeChart) {
+                timeChart.data.labels = filteredJanOgosData.map(d => d.proses);
+                timeChart.data.datasets[0].data = filteredJanOgosData.map(d => d.d1_7);
+                timeChart.data.datasets[1].data = filteredJanOgosData.map(d => d.d8_14);
+                timeChart.data.datasets[2].data = filteredJanOgosData.map(d => d.dgt15);
+                timeChart.update();
+            }
+
+            if (approvalChart) {
+                const sorted = [...filteredJanOgosData].sort((a, b) => a.pctKelulusan - b.pctKelulusan);
+                approvalChart.data.labels = sorted.map(d => d.proses);
+                approvalChart.data.datasets[0].data = sorted.map(d => d.pctKelulusan);
+                approvalChart.data.datasets[0].backgroundColor = sorted.map(d => d.pctKelulusan === 100 ? '#15803d' : '#22c55e');
+                approvalChart.update();
+            }
+
+            if (comparisonChart) {
+                comparisonChart.data.labels = filteredComparisonData.map(d => d.proses);
+                comparisonChart.data.datasets[0].data = filteredComparisonData.map(d => d.p11);
+                comparisonChart.data.datasets[1].data = filteredComparisonData.map(d => d.p12);
+                comparisonChart.data.datasets[2].data = filteredComparisonData.map(d => d.dP);
+                comparisonChart.update();
+            }
+        }
+
+        function resetGlobalFilters() {
+            document.getElementById('filterBulan').value = 'all';
+            document.getElementById('filterProses').value = 'all';
+            const searchInput = document.getElementById('searchTableJanOgos');
+            if (searchInput) searchInput.value = '';
+            applyGlobalFilters();
+            showToast("Penapis telah diset semula kepada data kumulatif.", "info");
+        }
+
+        function filterTableByName(text) {
+            const val = text.toLowerCase();
+            const rows = document.querySelectorAll('#janOgosTableBody tr');
+            rows.forEach(r => {
+                const prosesCell = r.children[0]?.innerText?.toLowerCase() || '';
+                r.style.display = prosesCell.includes(val) ? '' : 'none';
+            });
+        }
+
+        function switchTab(tabId) {
+            ['kecekapan', 'perbandingan', 'gra', 'semakan'].forEach(t => {
+                const content = document.getElementById(`tabContent-${t}`);
+                const btn = document.getElementById(`tabBtn-${t}`);
+                if (content && btn) {
+                    if (t === tabId) {
+                        content.classList.remove('hidden');
+                        btn.classList.add('active');
+                    } else {
+                        content.classList.add('hidden');
+                        btn.classList.remove('active');
+                    }
+                }
+            });
+            lucide.createIcons();
+        }
+
+        // Tracking module functions
+        function quickTestTracking(ref) {
+            document.getElementById('trackingInput').value = ref;
+            performTrackingSearch();
+        }
+
+        function performTrackingSearch() {
+            const query = document.getElementById('trackingInput').value.trim().toUpperCase();
+            if (!query) {
+                showToast("Sila masukkan No. Rujukan permohonan.", "warning");
+                return;
+            }
+
+            const found = sampleApplications.find(a => a.ref.toUpperCase() === query || a.applicant.toUpperCase().includes(query));
+            const resultBox = document.getElementById('trackingResultBox');
+
+            if (!found) {
+                showToast(`Permohonan "${query}" tidak dijumpai dalam rekod.`, "error");
+                resultBox.classList.add('hidden');
+                return;
+            }
+
+            // Papar maklumat
+            resultBox.classList.remove('hidden');
+            document.getElementById('trackRefNo').innerText = found.ref;
+            document.getElementById('trackTitle').innerText = found.type;
+            document.getElementById('trackApplicant').innerText = found.applicant;
+            document.getElementById('trackDate').innerText = found.date;
+            document.getElementById('trackDuration').innerText = found.duration;
+
+            const badge = document.getElementById('trackStatusBadge');
+            badge.innerText = found.status;
+            badge.className = `px-2.5 py-0.5 rounded-full text-2xs font-bold uppercase ${found.status === 'Approved' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}`;
+
+            // Peringkat visual (step 1-4)
+            for (let i = 1; i <= 4; i++) {
+                const stepEl = document.getElementById(`step-${i}`);
+                const icon = stepEl.querySelector('.step-icon');
+                if (i <= found.step) {
+                    stepEl.className = "p-3.5 rounded-xl border bg-emerald-50 border-emerald-200 flex items-start space-x-3";
+                    icon.className = "step-icon w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs bg-emerald-600 text-white";
+                    icon.innerHTML = '<i data-lucide="check" class="w-3.5 h-3.5"></i>';
+                } else {
+                    stepEl.className = "p-3.5 rounded-xl border bg-slate-50 border-slate-200 flex items-start space-x-3 opacity-60";
+                    icon.className = "step-icon w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs bg-slate-200 text-slate-700";
+                    icon.innerHTML = i;
+                }
+            }
+
+            // Log Jejak Audit
+            const logContainer = document.getElementById('trackAuditLogs');
+            logContainer.innerHTML = '';
+            found.logs.forEach(log => {
+                const li = document.createElement('li');
+                li.className = "flex items-start space-x-2";
+                li.innerHTML = `
+                    <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-utm-maroon mt-0.5 flex-shrink-0"></i>
+                    <span>${log}</span>
+                `;
+                logContainer.appendChild(li);
+            });
+
+            lucide.createIcons();
+            showToast(`Rekod ${found.ref} berjaya dimuatkan.`);
+        }
+
+        function showDetailModal(ref) {
+            const app = sampleApplications.find(a => a.ref === ref);
+            if (!app) return;
+
+            const modalBody = document.getElementById('detailModalBody');
+            modalBody.innerHTML = `
+                <div class="space-y-3">
+                    <div class="flex justify-between border-b pb-2">
+                        <span class="text-slate-400">No. Rujukan:</span>
+                        <span class="font-mono font-bold text-utm-maroon">${app.ref}</span>
+                    </div>
+                    <div class="flex justify-between border-b pb-2">
+                        <span class="text-slate-400">Kategori Permohonan:</span>
+                        <span class="font-bold text-slate-800">${app.type}</span>
+                    </div>
+                    <div class="flex justify-between border-b pb-2">
+                        <span class="text-slate-400">Nama Pemohon:</span>
+                        <span class="font-semibold text-slate-800">${app.applicant}</span>
+                    </div>
+                    <div class="flex justify-between border-b pb-2">
+                        <span class="text-slate-400">Tarikh Dihantar:</span>
+                        <span class="text-slate-700">${app.date}</span>
+                    </div>
+                    <div class="flex justify-between border-b pb-2">
+                        <span class="text-slate-400">Tempoh Proses:</span>
+                        <span class="font-bold text-blue-700">${app.duration}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-400">Status Semakan:</span>
+                        <span class="font-bold uppercase px-2 py-0.5 rounded text-2xs ${app.status === 'Approved' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${app.status}</span>
+                    </div>
+                </div>
+            `;
+            document.getElementById('detailModal').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detailModal').classList.add('hidden');
+        }
+
+        function showToast(msg, type = 'success') {
+            const toast = document.getElementById('toastBox');
+            const toastMsg = document.getElementById('toastMsg');
+            const toastIcon = document.getElementById('toastIcon');
+
+            toastMsg.innerText = msg;
+            if (type === 'error') {
+                toastIcon.setAttribute('data-lucide', 'alert-octagon');
+                toastIcon.className = 'w-4 h-4 text-rose-400';
+            } else if (type === 'warning') {
+                toastIcon.setAttribute('data-lucide', 'alert-circle');
+                toastIcon.className = 'w-4 h-4 text-amber-400';
+            } else {
+                toastIcon.setAttribute('data-lucide', 'check-circle');
+                toastIcon.className = 'w-4 h-4 text-emerald-400';
+            }
+            lucide.createIcons();
+
+            toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+            }, 3000);
+        }
+
+        function downloadCSVReport() {
+            let csv = 'Jenis Proses,Jumlah Permohonan,Jumlah Kelulusan,Peratus Kelulusan (%),Tempoh 1-7 Hari (%),Tempoh 8-14 Hari (%),Tempoh >15 Hari (%)\n';
+            filteredJanOgosData.forEach(r => {
+                csv += `"${r.proses}",${r.permohonan},${r.kelulusan},${r.pctKelulusan},${r.d1_7},${r.d8_14},${r.dgt15}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", `Laporan_Kecekapan_UTM_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            showToast("Laporan CSV berjaya dimuat turun!");
+        }
+
+        // Inisialisasi utama semasa laman dimuatkan
+        window.onload = function() {
+            initCharts();
+            populateTables();
+            lucide.createIcons();
+        };
+    </script>
+</body>
+</html>
