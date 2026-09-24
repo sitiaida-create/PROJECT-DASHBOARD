@@ -1153,133 +1153,7 @@
             5: "Mei 2026", 6: "Jun 2026", 7: "Julai 2026", 8: "Ogos 2026 (sehingga 26-08-2026)"
         };
 
-        
-        // ===============================
-        // SUMBER DATA GOOGLE SHEET (CSV)
-        // ===============================
-        const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ8dsm7ODY9nQ20P8iUUeHwElLzUMZig1rQ7zEmc1pih10EXq3OHgXzhWEC_z5u0bT913LW0nkXHKNf/pub?gid=1111629873&single=true&output=csv";
-
-        let googleSheetDataLoaded = false;
-
-        function parseCSV(text) {
-            const rows = [];
-            let row = [];
-            let cell = "";
-            let inQuotes = false;
-
-            for (let i = 0; i < text.length; i++) {
-                const ch = text[i];
-                const next = text[i + 1];
-
-                if (ch === '"' && inQuotes && next === '"') {
-                    cell += '"';
-                    i++;
-                } else if (ch === '"') {
-                    inQuotes = !inQuotes;
-                } else if (ch === "," && !inQuotes) {
-                    row.push(cell.trim());
-                    cell = "";
-                } else if ((ch === "\n" || ch === "\r") && !inQuotes) {
-                    if (ch === "\r" && next === "\n") i++;
-                    row.push(cell.trim());
-                    if (row.some(v => v !== "")) rows.push(row);
-                    row = [];
-                    cell = "";
-                } else {
-                    cell += ch;
-                }
-            }
-
-            if (cell !== "" || row.length > 0) {
-                row.push(cell.trim());
-                if (row.some(v => v !== "")) rows.push(row);
-            }
-
-            return rows;
-        }
-
-        function cleanNumber(value) {
-            if (value === null || value === undefined || value === "") return 0;
-            const n = Number(String(value).replace(/,/g, "").replace(/%/g, "").trim());
-            return Number.isFinite(n) ? n : 0;
-        }
-
-        function findHeader(headers, patterns, fallbackIndex) {
-            const index = headers.findIndex(h =>
-                patterns.some(p => h.toLowerCase().replace(/\s+/g, " ").includes(p))
-            );
-            return index >= 0 ? index : fallbackIndex;
-        }
-
-        async function loadGoogleSheetData() {
-            try {
-                const response = await fetch(GOOGLE_SHEET_CSV_URL + "&_=" + Date.now(), {
-                    cache: "no-store"
-                });
-
-                if (!response.ok) throw new Error("HTTP " + response.status);
-
-                const csvText = await response.text();
-                const rows = parseCSV(csvText);
-
-                if (rows.length < 2) throw new Error("CSV tidak mengandungi rekod data.");
-
-                const headers = rows[0].map(h =>
-                    String(h || "").replace(/^\uFEFF/, "").trim()
-                );
-
-                const processIndex = findHeader(headers, ["proses", "process", "jenis proses"], 0);
-                const permohonanIndex = findHeader(headers, ["jumlah permohonan", "permohonan", "application", "semakan"], 1);
-                const kelulusanIndex = findHeader(headers, ["jumlah kelulusan", "kelulusan", "approval"], 2);
-                const pctIndex = findHeader(headers, ["% kelulusan", "kadar kelulusan", "percentage"], 3);
-                const d1_7Index = findHeader(headers, ["1-7 hari", "1–7 hari", "1 - 7 hari"], 4);
-                const d8_14Index = findHeader(headers, ["8-14 hari", "8–14 hari", "8 - 14 hari", "7-14 hari"], 5);
-                const dgt15Index = findHeader(headers, [">15 hari", "> 15 hari", "lebih 15 hari", "15 hari"], 6);
-
-                const newData = rows.slice(1)
-                    .map(row => {
-                        const proses = String(row[processIndex] || "").trim();
-                        if (!proses) return null;
-
-                        const permohonan = cleanNumber(row[permohonanIndex]);
-                        const kelulusan = Math.min(cleanNumber(row[kelulusanIndex]), permohonan);
-
-                        return {
-                            proses,
-                            permohonan,
-                            kelulusan,
-                            pctKelulusan: pctIndex < row.length && row[pctIndex] !== ""
-                                ? cleanNumber(row[pctIndex])
-                                : (permohonan > 0 ? Math.round((kelulusan / permohonan) * 100) : 0),
-                            d1_7: cleanNumber(row[d1_7Index]),
-                            d8_14: cleanNumber(row[d8_14Index]),
-                            dgt15: cleanNumber(row[dgt15Index])
-                        };
-                    })
-                    .filter(Boolean);
-
-                if (!newData.length) throw new Error("Tiada rekod yang boleh dibaca daripada CSV.");
-
-                rawJanOgosTemplateData.length = 0;
-                rawJanOgosTemplateData.push(...newData);
-
-                currentJanOgosData = JSON.parse(JSON.stringify(newData));
-                filteredJanOgosData = [...currentJanOgosData];
-                googleSheetDataLoaded = true;
-
-                const sourceName = document.getElementById("currentDataSourceName");
-                if (sourceName) sourceName.innerText = "Sumber Data: Google Sheet (CSV)";
-
-                console.log("Google Sheet CSV berjaya dimuatkan:", newData.length, "rekod");
-                return true;
-            } catch (error) {
-                console.error("Gagal memuatkan Google Sheet CSV:", error);
-                showToast("Data Google Sheet tidak dapat dimuatkan. Dashboard menggunakan data sedia ada.", "warning");
-                return false;
-            }
-        }
-
-let currentJanOgosData = JSON.parse(JSON.stringify(rawJanOgosTemplateData));
+        let currentJanOgosData = JSON.parse(JSON.stringify(rawJanOgosTemplateData));
         let currentComparisonData = JSON.parse(JSON.stringify(rawComparisonTemplateData));
         let currentGraData = JSON.parse(JSON.stringify(rawGraTemplateData));
 
@@ -2394,9 +2268,7 @@ let currentJanOgosData = JSON.parse(JSON.stringify(rawJanOgosTemplateData));
         }
 
         // Pemuatan Mula Laman (Window Onload)
-        window.onload = async function() {
-            await loadGoogleSheetData();
-            applyGlobalFilters();
+        window.onload = function() {
             initCharts();
             populateTables();
             lucide.createIcons();
