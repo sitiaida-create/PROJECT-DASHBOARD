@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UTM PMMD - Papan Pemuka Kecekapan Berdasarkan Templat Excel</title>
+    <title>UTM PMMD - Papan Pemuka Kecekapan Prestasi</title>
     
     <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -37,7 +37,7 @@
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
-    <!-- SheetJS (xlsx) untuk sokongan baca & jana templat Excel sebenar -->
+    <!-- SheetJS (xlsx) untuk sokongan baca & muat turun Excel sebenar -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     
     <!-- Lucide Icons -->
@@ -78,25 +78,26 @@
 </head>
 <body class="text-slate-800 antialiased min-h-screen flex flex-col">
 
-    <!-- Header Laman Utama -->
     <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs w-full">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="w-full px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 <div>
                     <h1 class="text-base sm:text-lg font-bold text-slate-900 leading-tight">PMMD - PERFORMANCE DASHBOARD</h1>
                     <p class="text-xs text-slate-500 hidden sm:flex items-center space-x-1">
-                        <span>Templat Sumber:</span>
-                        <span class="font-mono font-semibold text-utm-maroon bg-rose-50 px-1.5 py-0.5 rounded">Data Performan PMMD Jan hingga 26 Ogos.xlsx</span>
+                        <span>Sumber Aktif:</span>
+                        <span class="font-mono font-semibold text-utm-maroon bg-rose-50 px-1.5 py-0.5 rounded" id="headerFileBadge">Data Performan PMMD Jan hingga 26 Ogos.xlsx</span>
                     </p>
                 </div>
 
-                <div class="flex items-center space-x-2.5">
-                    <label for="excelFileInput" class="cursor-pointer inline-flex items-center space-x-1.5 bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-xl text-xs font-semibold shadow-xs transition">
+                <div class="flex items-center space-x-2 sm:space-x-2.5">
+                    <!-- Butang Muat Naik Fail Excel Tempatan -->
+                    <label for="excelFileInput" class="cursor-pointer inline-flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-900 text-white px-3 py-1.5 rounded-xl text-xs font-semibold shadow-xs transition">
                         <i data-lucide="file-up" class="w-3.5 h-3.5"></i>
-                        <span class="hidden sm:inline">Muat Naik Fail Excel</span>
+                        <span class="hidden sm:inline">Muat Naik Excel</span>
                     </label>
                     <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv" class="hidden" onchange="handleExcelUpload(event)">
 
+                    <!-- Butang Muat Turun Templat Asal -->
                     <button onclick="downloadOfficialExcelTemplate()" class="inline-flex items-center space-x-1.5 bg-utm-maroon hover:bg-utm-dark text-white px-3 py-1.5 rounded-xl text-xs font-semibold shadow-xs transition" title="Muat Turun Templat Asal (.xlsx)">
                         <i data-lucide="download" class="w-3.5 h-3.5"></i>
                         <span class="hidden sm:inline">Muat Turun Templat</span>
@@ -106,13 +107,12 @@
         </div>
     </header>
 
-    <!-- Susun Atur Utama: Bar Sisi Kiri (Sidebar Menu) & Kandungan -->
     <div class="flex-1 flex flex-col md:flex-row w-full">
         <!-- Sidebar Menu Navigasi di Bahagian Kiri -->
         <aside class="w-full md:w-64 lg:w-72 bg-white md:bg-transparent border-b md:border-b-0 md:border-r border-slate-200 p-3 sm:p-4 md:py-6 shrink-0">
             <div class="md:sticky md:top-20 space-y-4">
                 <div class="px-2 hidden md:block">
-                    <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Menu</span>
+                    <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Navigasi Lembaran</span>
                 </div>
 
                 <nav class="flex md:flex-col gap-1.5 overflow-x-auto md:overflow-visible pb-1 md:pb-0">
@@ -127,10 +127,6 @@
                     <button onclick="switchTab('gra')" id="tabBtn-gra" class="tab-btn w-full text-left inline-flex items-center space-x-2.5 px-3.5 py-2.5 text-xs font-semibold rounded-xl border-l-4 md:border-l-4 border-b-2 md:border-b-0 border-transparent text-slate-600 hover:text-utm-maroon hover:bg-white md:hover:bg-rose-50/50 transition whitespace-nowrap md:whitespace-normal">
                         <i data-lucide="pie-chart" class="w-4 h-4 shrink-0"></i>
                         <span>Status Lantikan GRA</span>
-                    </button>
-                    <button onclick="switchTab('templat')" id="tabBtn-templat" class="tab-btn w-full text-left inline-flex items-center space-x-2.5 px-3.5 py-2.5 text-xs font-semibold rounded-xl border-l-4 md:border-l-4 border-b-2 md:border-b-0 border-transparent text-slate-600 hover:text-utm-maroon hover:bg-white md:hover:bg-rose-50/50 transition whitespace-nowrap md:whitespace-normal">
-                        <i data-lucide="file-spreadsheet" class="w-4 h-4 shrink-0"></i>
-                        <span>Templat & Muat Naik Excel</span>
                     </button>
                     <button onclick="switchTab('semakan')" id="tabBtn-semakan" class="tab-btn w-full text-left inline-flex items-center space-x-2.5 px-3.5 py-2.5 text-xs font-semibold rounded-xl border-l-4 md:border-l-4 border-b-2 md:border-b-0 border-transparent text-slate-600 hover:text-utm-maroon hover:bg-white md:hover:bg-rose-50/50 transition whitespace-nowrap md:whitespace-normal">
                         <i data-lucide="search-check" class="w-4 h-4 shrink-0"></i>
@@ -154,734 +150,645 @@
         <!-- Kandungan Utama Papan Pemuka -->
         <main class="flex-1 min-w-0 p-4 sm:p-6 lg:py-6 lg:px-8 space-y-6">
 
-        <!-- Bar Penapis Global mengikut format templat Excel -->
-        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
-            <div class="flex items-center space-x-2.5">
-                <div class="w-9 h-9 rounded-xl bg-red-50 text-utm-maroon flex items-center justify-center font-bold">
-                    <i data-lucide="filter" class="w-4 h-4"></i>
-                </div>
-                <div>
-                    <span class="text-xs font-bold uppercase text-slate-900 tracking-wider">Penapis Data Excel Terpilih</span>
-                    <p class="text-[11px] text-slate-400">Pilih skop bulan atau jenis proses untuk mengira semula formula lembaran kerja</p>
-                </div>
-            </div>
-
-            <div class="flex flex-wrap items-center gap-3">
-                <!-- Penapis 1: Bulan Semakan -->
-                <div class="flex items-center space-x-2 min-w-[210px] flex-1 sm:flex-none">
-                    <label for="filterBulan" class="text-xs font-semibold text-slate-600 flex items-center space-x-1">
-                        <i data-lucide="calendar-range" class="w-3.5 h-3.5 text-slate-400"></i>
-                        <span>Bulan:</span>
-                    </label>
-                    <select id="filterBulan" onchange="applyGlobalFilters()" class="text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-utm-maroon flex-1 cursor-pointer">
-                        <option value="all">Semua Bulan</option>
-                        <option value="1">Januari 2026</option>
-                        <option value="2">Februari 2026</option>
-                        <option value="3">Mac 2026</option>
-                        <option value="4">April 2026</option>
-                        <option value="5">Mei 2026</option>
-                        <option value="6">Jun 2026</option>
-                        <option value="7">Julai 2026</option>
-                        <option value="8">Ogos 2026 (sehingga 26-08-2026)</option>
-                    </select>
-                </div>
-
-                <!-- Penapis 2: Jenis Proses -->
-                <div class="flex items-center space-x-2 min-w-[240px] flex-1 sm:flex-none">
-                    <label for="filterProses" class="text-xs font-semibold text-slate-600 flex items-center space-x-1">
-                        <i data-lucide="layers" class="w-3.5 h-3.5 text-slate-400"></i>
-                        <span>Proses:</span>
-                    </label>
-                    <select id="filterProses" onchange="applyGlobalFilters()" class="text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-utm-maroon flex-1 cursor-pointer">
-                        <option value="all">Semua Jenis Proses</option>
-                        <option value="Aktiviti dalam negara">Aktiviti dalam negara</option>
-                        <option value="Aktiviti luar negara">Aktiviti luar negara</option>
-                        <option value="Pelantikan RA/RO">Pelantikan RA/RO</option>
-                        <option value="Pelantikan GRA/SRA">Pelantikan GRA/SRA</option>
-                        <option value="Tuntutan SRA">Tuntutan SRA</option>
-                        <option value="Semakan End Report">Semakan End Report</option>
-                        <option value="Semakan Progress Report">Semakan Progress Report</option>
-                        <option value="Pengaktifan Geran">Pengaktifan Geran</option>
-                        <option value="Pertukaran ketua/ahli projek">Pertukaran ketua/ahli projek</option>
-                        <option value="Perlanjutan tempoh">Perlanjutan tempoh</option>
-                    </select>
-                </div>
-
-                <!-- Butang Set Semula -->
-                <button onclick="resetGlobalFilters()" class="inline-flex items-center space-x-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-800 text-xs font-semibold rounded-xl transition">
-                    <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
-                    <span>Set Semula</span>
-                </button>
-            </div>
-        </div>
-
-        <!-- 4 Kad Metrik Utama (KPI Cards) -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-                <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
-                    <span>JUMLAH PERMOHONAN</span>
-                    <div class="p-2 rounded-xl bg-slate-100 text-slate-700">
-                        <i data-lucide="files" class="w-4 h-4"></i>
-                    </div>
-                </div>
-                <div class="mt-2">
-                    <div class="text-2xl font-extrabold text-slate-900" id="kpiTotalPermohonan">4,270</div>
-                    <p class="text-xs text-emerald-600 font-semibold mt-1 flex items-center" id="kpiDeltaPermohonan">
-                        <i data-lucide="trending-up" class="w-3.5 h-3.5 mr-1"></i>
-                        +148 berbanding Bil. 11 (4,122)
-                    </p>
-                </div>
-            </div>
-
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-                <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
-                    <span>JUMLAH KELULUSAN</span>
-                    <div class="p-2 rounded-xl bg-emerald-50 text-emerald-700">
-                        <i data-lucide="check-circle-2" class="w-4 h-4"></i>
-                    </div>
-                </div>
-                <div class="mt-2">
-                    <div class="text-2xl font-extrabold text-slate-900" id="kpiTotalKelulusan">4,187</div>
-                    <p class="text-xs text-emerald-600 font-semibold mt-1 flex items-center" id="kpiDeltaKelulusan">
-                        <i data-lucide="trending-up" class="w-3.5 h-3.5 mr-1"></i>
-                        +118 berbanding Bil. 11 (4,069)
-                    </p>
-                </div>
-            </div>
-
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-                <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
-                    <span>KADAR KELULUSAN KESELURUHAN</span>
-                    <div class="p-2 rounded-xl bg-amber-50 text-amber-700">
-                        <i data-lucide="award" class="w-4 h-4"></i>
-                    </div>
-                </div>
-                <div class="mt-2">
-                    <div class="text-2xl font-extrabold text-slate-900" id="kpiAvgKelulusan">98.1%</div>
-                    <p class="text-xs text-slate-500 mt-1" id="kpiKelulusanSub">
-                        4 kategori capai kadar 100% kelulusan
-                    </p>
-                </div>
-            </div>
-
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-                <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
-                    <span>PURATA TEMPOH PANTAS (1-7 HARI)</span>
-                    <div class="p-2 rounded-xl bg-blue-50 text-blue-700">
-                        <i data-lucide="zap" class="w-4 h-4"></i>
-                    </div>
-                </div>
-                <div class="mt-2">
-                    <div class="text-2xl font-extrabold text-slate-900" id="kpiAvgSlaPantas">89.2%</div>
-                    <p class="text-xs text-slate-500 mt-1">
-                        Purata wajaran siap dalam 7 hari bekerja
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Jalur Metrik Khas: Permohonan 7-14 Hari & >15 Hari -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div onclick="openProcessCasesModal('Pelantikan GRA/SRA', '8-14')" class="bg-amber-50/60 hover:bg-amber-50 border border-amber-200 p-4 rounded-2xl flex items-center justify-between cursor-pointer transition shadow-2xs group" title="Klik untuk melihat kes dalam julat 7-14 hari">
-                <div class="flex items-center space-x-3.5">
-                    <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center font-bold shadow-xs">
-                        <i data-lucide="clock" class="w-5 h-5"></i>
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+                <div class="flex items-center space-x-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-red-50 text-utm-maroon flex items-center justify-center font-bold">
+                        <i data-lucide="filter" class="w-4 h-4"></i>
                     </div>
                     <div>
-                        <div class="flex items-center space-x-1.5">
-                            <span class="text-xs font-bold text-amber-950 uppercase tracking-wider">Permohonan Tempoh Sederhana (7-14 Hari)</span>
-                            <i data-lucide="external-link" class="w-3 h-3 text-amber-600 opacity-0 group-hover:opacity-100 transition"></i>
-                        </div>
-                        <div class="flex items-baseline space-x-2 mt-0.5">
-                            <span class="text-xl font-extrabold text-amber-900" id="kpiCount7_14">226 kes</span>
-                            <span class="text-xs font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full" id="kpiPct7_14">5.3%</span>
-                        </div>
+                        <span class="text-xs font-bold uppercase text-slate-900 tracking-wider">Penapis Data Excel Terpilih</span>
+                        <p class="text-[11px] text-slate-400">Pilih skop bulan atau jenis proses untuk mengira semula formula lembaran kerja</p>
                     </div>
                 </div>
-                <div class="text-right hidden sm:block">
-                    <span class="text-[11px] text-amber-800 font-medium block">Penyumbang Terbesar:</span>
-                    <span class="text-xs font-bold text-amber-950" id="kpiTop7_14">Pelantikan GRA/SRA (149 kes)</span>
+
+                <div class="flex flex-wrap items-center gap-3">
+                    <!-- Penapis 1: Bulan Semakan -->
+                    <div class="flex items-center space-x-2 min-w-[210px] flex-1 sm:flex-none">
+                        <label for="filterBulan" class="text-xs font-semibold text-slate-600 flex items-center space-x-1">
+                            <i data-lucide="calendar-range" class="w-3.5 h-3.5 text-slate-400"></i>
+                            <span>Bulan:</span>
+                        </label>
+                        <select id="filterBulan" onchange="applyGlobalFilters()" class="text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-utm-maroon flex-1 cursor-pointer">
+                            <option value="all">Semua Bulan</option>
+                            <option value="1">Januari 2026</option>
+                            <option value="2">Februari 2026</option>
+                            <option value="3">Mac 2026</option>
+                            <option value="4">April 2026</option>
+                            <option value="5">Mei 2026</option>
+                            <option value="6">Jun 2026</option>
+                            <option value="7">Julai 2026</option>
+                            <option value="8">Ogos 2026 (sehingga 26-08-2026)</option>
+                        </select>
+                    </div>
+
+                    <!-- Penapis 2: Jenis Proses -->
+                    <div class="flex items-center space-x-2 min-w-[240px] flex-1 sm:flex-none">
+                        <label for="filterProses" class="text-xs font-semibold text-slate-600 flex items-center space-x-1">
+                            <i data-lucide="layers" class="w-3.5 h-3.5 text-slate-400"></i>
+                            <span>Proses:</span>
+                        </label>
+                        <select id="filterProses" onchange="applyGlobalFilters()" class="text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-utm-maroon flex-1 cursor-pointer">
+                            <option value="all">Semua Jenis Proses</option>
+                            <option value="Aktiviti dalam negara">Aktiviti dalam negara</option>
+                            <option value="Aktiviti luar negara">Aktiviti luar negara</option>
+                            <option value="Pelantikan RA/RO">Pelantikan RA/RO</option>
+                            <option value="Pelantikan GRA/SRA">Pelantikan GRA/SRA</option>
+                            <option value="Tuntutan SRA">Tuntutan SRA</option>
+                            <option value="Semakan End Report">Semakan End Report</option>
+                            <option value="Semakan Progress Report">Semakan Progress Report</option>
+                            <option value="Pengaktifan Geran">Pengaktifan Geran</option>
+                            <option value="Pertukaran ketua/ahli projek">Pertukaran ketua/ahli projek</option>
+                            <option value="Perlanjutan tempoh">Perlanjutan tempoh</option>
+                        </select>
+                    </div>
+
+                    <!-- Butang Set Semula -->
+                    <button onclick="resetGlobalFilters()" class="inline-flex items-center space-x-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-800 text-xs font-semibold rounded-xl transition">
+                        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                        <span>Set Semula</span>
+                    </button>
                 </div>
             </div>
 
-            <div onclick="openProcessCasesModal('Semakan End Report', 'gt15')" class="bg-rose-50/70 hover:bg-rose-50 border border-rose-200 p-4 rounded-2xl flex items-center justify-between cursor-pointer transition shadow-2xs group" title="Klik untuk melihat kes melebihi 15 hari">
-                <div class="flex items-center space-x-3.5">
-                    <div class="w-10 h-10 rounded-xl bg-rose-600 text-white flex items-center justify-center font-bold shadow-xs">
-                        <i data-lucide="alert-octagon" class="w-5 h-5"></i>
-                    </div>
-                    <div>
-                        <div class="flex items-center space-x-1.5">
-                            <span class="text-xs font-bold text-rose-950 uppercase tracking-wider">Permohonan Tempoh Lanjut (>15 Hari)</span>
-                            <i data-lucide="external-link" class="w-3 h-3 text-rose-600 opacity-0 group-hover:opacity-100 transition"></i>
-                        </div>
-                        <div class="flex items-baseline space-x-2 mt-0.5">
-                            <span class="text-xl font-extrabold text-rose-900" id="kpiCountGt15">261 kes</span>
-                            <span class="text-xs font-bold text-rose-700 bg-rose-100 px-2 py-0.5 rounded-full" id="kpiPctGt15">6.1%</span>
-                        </div>
-                    </div>
+            <!-- Banner status data aktif -->
+            <div id="fileStatusBanner" class="flex flex-col sm:flex-row sm:items-center justify-between px-4 py-2.5 bg-rose-50/70 border border-rose-200/80 rounded-xl text-xs text-rose-950 gap-2">
+                <div class="flex items-center space-x-2">
+                    <i data-lucide="file-spreadsheet" class="w-4 h-4 text-utm-maroon shrink-0"></i>
+                    <span>Status Data: <strong id="currentDataSourceName">Templat Rasmi Asal (Data Performan PMMD Jan hingga 26 Ogos.xlsx)</strong></span>
                 </div>
-                <div class="text-right hidden sm:block">
-                    <span class="text-[11px] text-rose-800 font-medium block">Penyumbang Terbesar:</span>
-                    <span class="text-xs font-bold text-rose-950" id="kpiTopGt15">Semakan Progress & End Report</span>
+                <div class="flex items-center space-x-2">
+                    <span class="text-[10px] font-bold uppercase bg-white border border-rose-200 px-2.5 py-0.5 rounded text-utm-maroon" id="activeFilterBadgeSummary">Semua Kategori (10 Proses)</span>
                 </div>
             </div>
-        </div>
 
-        <!-- TAB 1: KECEKAPAN PROSES -->
-        <div id="tabContent-kecekapan" class="space-y-6">
-            <!-- Graf Kecekapan Proses -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Graf Bar Bertumpuk: Tempoh Hari -->
+            <div id="tabContent-kecekapan" class="space-y-6">
+                <!-- 4 Kad Metrik Utama (KPI Cards) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+                        <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+                            <span>JUMLAH PERMOHONAN</span>
+                            <div class="p-2 rounded-xl bg-slate-100 text-slate-700">
+                                <i data-lucide="files" class="w-4 h-4"></i>
+                            </div>
+                        </div>
+                        <div class="mt-2">
+                            <div class="text-2xl font-extrabold text-slate-900" id="kpiTotalPermohonan">4,270</div>
+                            <p class="text-xs text-emerald-600 font-semibold mt-1 flex items-center" id="kpiDeltaPermohonan">
+                                <i data-lucide="trending-up" class="w-3.5 h-3.5 mr-1"></i>
+                                +148 berbanding Bil. 11 (4,122)
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+                        <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+                            <span>JUMLAH KELULUSAN</span>
+                            <div class="p-2 rounded-xl bg-emerald-50 text-emerald-700">
+                                <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+                            </div>
+                        </div>
+                        <div class="mt-2">
+                            <div class="text-2xl font-extrabold text-slate-900" id="kpiTotalKelulusan">4,187</div>
+                            <p class="text-xs text-emerald-600 font-semibold mt-1 flex items-center" id="kpiDeltaKelulusan">
+                                <i data-lucide="trending-up" class="w-3.5 h-3.5 mr-1"></i>
+                                +118 berbanding Bil. 11 (4,069)
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+                        <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+                            <span>KADAR KELULUSAN KESELURUHAN</span>
+                            <div class="p-2 rounded-xl bg-amber-50 text-amber-700">
+                                <i data-lucide="award" class="w-4 h-4"></i>
+                            </div>
+                        </div>
+                        <div class="mt-2">
+                            <div class="text-2xl font-extrabold text-slate-900" id="kpiAvgKelulusan">98.1%</div>
+                            <p class="text-xs text-slate-500 mt-1" id="kpiKelulusanSub">
+                                4 kategori capai kadar 100% kelulusan
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+                        <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+                            <span>PURATA TEMPOH PANTAS (1-7 HARI)</span>
+                            <div class="p-2 rounded-xl bg-blue-50 text-blue-700">
+                                <i data-lucide="zap" class="w-4 h-4"></i>
+                            </div>
+                        </div>
+                        <div class="mt-2">
+                            <div class="text-2xl font-extrabold text-slate-900" id="kpiAvgSlaPantas">89.2%</div>
+                            <p class="text-xs text-slate-500 mt-1">
+                                Purata wajaran siap dalam 7 hari bekerja
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Jalur Metrik Khas: Permohonan 7-14 Hari & >15 Hari -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div onclick="openProcessCasesModal('Pelantikan GRA/SRA', '8-14')" class="bg-amber-50/60 hover:bg-amber-50 border border-amber-200 p-4 rounded-2xl flex items-center justify-between cursor-pointer transition shadow-2xs group" title="Klik untuk melihat kes dalam julat 7-14 hari">
+                        <div class="flex items-center space-x-3.5">
+                            <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center font-bold shadow-xs">
+                                <i data-lucide="clock" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <div class="flex items-center space-x-1.5">
+                                    <span class="text-xs font-bold text-amber-950 uppercase tracking-wider">Permohonan Tempoh Sederhana (7-14 Hari)</span>
+                                    <i data-lucide="external-link" class="w-3 h-3 text-amber-600 opacity-0 group-hover:opacity-100 transition"></i>
+                                </div>
+                                <div class="flex items-baseline space-x-2 mt-0.5">
+                                    <span class="text-xl font-extrabold text-amber-900" id="kpiCount7_14">226 kes</span>
+                                    <span class="text-xs font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full" id="kpiPct7_14">5.3%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-right hidden sm:block">
+                            <span class="text-[11px] text-amber-800 font-medium block">Penyumbang Terbesar:</span>
+                            <span class="text-xs font-bold text-amber-950" id="kpiTop7_14">Pelantikan GRA/SRA (149 kes)</span>
+                        </div>
+                    </div>
+
+                    <div onclick="openProcessCasesModal('Semakan End Report', 'gt15')" class="bg-rose-50/70 hover:bg-rose-50 border border-rose-200 p-4 rounded-2xl flex items-center justify-between cursor-pointer transition shadow-2xs group" title="Klik untuk melihat kes melebihi 15 hari">
+                        <div class="flex items-center space-x-3.5">
+                            <div class="w-10 h-10 rounded-xl bg-rose-600 text-white flex items-center justify-center font-bold shadow-xs">
+                                <i data-lucide="alert-octagon" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <div class="flex items-center space-x-1.5">
+                                    <span class="text-xs font-bold text-rose-950 uppercase tracking-wider">Permohonan Tempoh Lanjut (>15 Hari)</span>
+                                    <i data-lucide="external-link" class="w-3 h-3 text-rose-600 opacity-0 group-hover:opacity-100 transition"></i>
+                                </div>
+                                <div class="flex items-baseline space-x-2 mt-0.5">
+                                    <span class="text-xl font-extrabold text-rose-900" id="kpiCountGt15">261 kes</span>
+                                    <span class="text-xs font-bold text-rose-700 bg-rose-100 px-2 py-0.5 rounded-full" id="kpiPctGt15">6.1%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-right hidden sm:block">
+                            <span class="text-[11px] text-rose-800 font-medium block">Penyumbang Terbesar:</span>
+                            <span class="text-xs font-bold text-rose-950" id="kpiTopGt15">Semakan Progress & End Report</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Graf Bar Bertumpuk: Tempoh Hari -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <h3 class="text-sm font-bold text-slate-900 flex items-center space-x-2">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
+                                    <span>% Proses dan Semakan Permohonan (Jan - 26 Ogos)</span>
+                                </h3>
+                                <p class="text-xs text-slate-400">Pecahan nisbah masa: 1-7 Hari, 8-14 Hari & >15 Hari</p>
+                            </div>
+                        </div>
+                        <div class="h-64 sm:h-72">
+                            <canvas id="timeBreakdownChart"></canvas>
+                        </div>
+                        <div class="mt-4 flex flex-wrap items-center justify-center gap-4 text-xs font-medium text-slate-600">
+                            <div class="flex items-center space-x-1.5">
+                                <span class="w-3 h-3 rounded-sm bg-blue-600"></span>
+                                <span>(%) 1-7 Hari</span>
+                            </div>
+                            <div class="flex items-center space-x-1.5">
+                                <span class="w-3 h-3 rounded-sm bg-amber-500"></span>
+                                <span>(%) 8-14 Hari</span>
+                            </div>
+                            <div class="flex items-center space-x-1.5">
+                                <span class="w-3 h-3 rounded-sm bg-emerald-600"></span>
+                                <span>(%) >15 Hari</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Graf Bar Mendatar: % Kelulusan -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <h3 class="text-sm font-bold text-slate-900 flex items-center space-x-2">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span>
+                                    <span>% Kelulusan Mengikut Kategori Proses</span>
+                                </h3>
+                                <p class="text-xs text-slate-400">Peringkat peratusan kelulusan dari 88% hingga 100%</p>
+                            </div>
+                        </div>
+                        <div class="h-64 sm:h-72">
+                            <canvas id="approvalRateChart"></canvas>
+                        </div>
+                        <div class="mt-4 text-center text-xs text-slate-500">
+                            Nota: Semakan Progress Report, End Report, dan Tuntutan SRA mengekalkan prestasi 100%.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+                    <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div>
+                            <div class="flex items-center space-x-2">
+                                <h3 class="text-sm font-bold text-slate-900">Jadual Format Templat: Kecekapan Proses dan Semakan Permohonan</h3>
+                                <span class="bg-blue-50 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-blue-200 flex items-center gap-1">
+                                    <i data-lucide="mouse-pointer-click" class="w-3 h-3"></i> Interaktif: Klik mana-mana baris untuk senarai kes
+                                </span>
+                            </div>
+                            <p class="text-xs text-slate-400 mt-0.5">Data bersumberkan Helaian 1 templat Excel (Data sehingga 26-08-2026). Tekan baris atau sel tempoh hari untuk melihat rekod fail.</p>
+                        </div>
+                        <div class="relative w-full sm:w-64">
+                            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
+                            <input type="text" id="searchTableJanOgos" oninput="filterTableByName(this.value)" placeholder="Cari kategori proses..." class="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-utm-maroon">
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-xs text-left">
+                            <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-bold uppercase tracking-wider text-[11px]">
+                                <tr>
+                                    <th class="py-3 px-4">Proses</th>
+                                    <th class="py-3 px-3 text-right">Jumlah Permohonan</th>
+                                    <th class="py-3 px-3 text-right">Jumlah Kelulusan</th>
+                                    <th class="py-3 px-3 text-center">% Kelulusan</th>
+                                    <th class="py-3 px-3 text-center bg-blue-50/70 text-blue-900">(%) 1-7 Hari</th>
+                                    <th class="py-3 px-3 text-center bg-amber-50/70 text-amber-900">(%) 7-14 Hari [Kes]</th>
+                                    <th class="py-3 px-3 text-center bg-rose-50/70 text-rose-900">(%) >15 Hari [Kes]</th>
+                                    <th class="py-3 px-3 text-center">Tindakan</th>
+                                </tr>
+                            </thead>
+                            <tbody id="janOgosTableBody" class="divide-y divide-slate-100">
+                                <!-- Diisi secara dinamik melalui JS -->
+                            </tbody>
+                            <tfoot class="bg-slate-100 font-bold text-slate-900 border-t border-slate-300">
+                                <tr id="janOgosTableTotalRow">
+                                    <!-- Diisi secara dinamik -->
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-xs p-5 space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-2">
+                        <div>
+                            <h3 class="text-sm font-bold text-slate-900 flex items-center space-x-2">
+                                <i data-lucide="layers" class="w-4 h-4 text-utm-maroon"></i>
+                                <span>Perincian Khas: Permohonan Mengambil Masa 7-14 Hari vs >15 Hari</span>
+                            </h3>
+                            <p class="text-xs text-slate-500">Pecahan bilangan kes sebenar, analisis faktor kelewatan, serta langkah penyelesaian bagi melicinkan pengurusan penyelidikan UTM.</p>
+                        </div>
+                        <span class="text-xs font-semibold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700">Jumlah Terlibat: <strong id="combinedDelayedTotal">487 Kes</strong> (11.4%)</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                        <!-- Kad Panel 1: Tempoh 7-14 Hari -->
+                        <div class="rounded-xl border border-amber-200 bg-amber-50/30 p-4 flex flex-col justify-between space-y-4">
+                            <div>
+                                <div class="flex items-center justify-between mb-3">
+                                    <div class="flex items-center space-x-2">
+                                        <span class="w-3 h-3 rounded-md bg-amber-500"></span>
+                                        <h4 class="text-xs font-bold text-amber-950 uppercase">Permohonan Mengambil Masa 7-14 Hari</h4>
+                                    </div>
+                                    <span class="text-xs font-extrabold text-amber-800 bg-amber-100 border border-amber-300 px-2 py-0.5 rounded-lg" id="badgeSum7_14">226 Permohonan</span>
+                                </div>
+
+                                <p class="text-xs text-slate-600 mb-3">
+                                    Kategori proses dalam julat sederhana (melebihi piagam 7 hari namun diselesaikan dalam tempoh 2 minggu bekerja):
+                                </p>
+
+                                <div class="space-y-2 mb-4" id="listProcess7_14">
+                                    <!-- Diisi secara dinamik melalui JS -->
+                                </div>
+                            </div>
+
+                            <div class="p-3 bg-white rounded-xl border border-amber-200/80 text-xs text-amber-900 space-y-1.5 shadow-2xs">
+                                <div class="font-bold flex items-center space-x-1.5 text-amber-950">
+                                    <i data-lucide="info" class="w-3.5 h-3.5 text-amber-600"></i>
+                                    <span>Punca & Faktor Pemprosesan 7-14 Hari:</span>
+                                </div>
+                                <ul class="list-disc list-inside space-y-1 text-[11px] text-slate-600">
+                                    <li><strong>Pelantikan GRA/SRA (149 kes / 17%)</strong>: Keperluan semakan baki vot peruntukan geran serta pengesahan pendaftaran pascasiswazah aktif oleh SPS.</li>
+                                    <li><strong>Perlanjutan Tempoh (43 kes / 13%)</strong>: Menunggu ulasan dan sokongan bertulis daripada Pengarah Pusat Penyelidikan / Dekan Fakulti.</li>
+                                    <li><strong>Pelantikan RA/RO (14 kes / 7%)</strong>: Semakan kelayakan sijil akademik & kontrak perjawatan pembantu penyelidik.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Kad Panel 2: Tempoh Lebih 15 Hari (>15 Hari) -->
+                        <div class="rounded-xl border border-rose-200 bg-rose-50/30 p-4 flex flex-col justify-between space-y-4">
+                            <div>
+                                <div class="flex items-center justify-between mb-3">
+                                    <div class="flex items-center space-x-2">
+                                        <span class="w-3 h-3 rounded-md bg-rose-600"></span>
+                                        <h4 class="text-xs font-bold text-rose-950 uppercase">Permohonan Mengambil Masa Lebih 15 Hari (>15 Hari)</h4>
+                                    </div>
+                                    <span class="text-xs font-extrabold text-rose-800 bg-rose-100 border border-rose-300 px-2 py-0.5 rounded-lg" id="badgeSumGt15">261 Permohonan</span>
+                                </div>
+
+                                <p class="text-xs text-slate-600 mb-3">
+                                    Kategori proses yang melepasi tempoh 15 hari bekerja dan memerlukan pemantauan intensif / verifikasi audit luar:
+                                </p>
+
+                                <div class="space-y-2 mb-4" id="listProcessGt15">
+                                    <!-- Diisi secara dinamik melalui JS -->
+                                </div>
+                            </div>
+
+                            <div class="p-3 bg-white rounded-xl border border-rose-200/80 text-xs text-rose-900 space-y-1.5 shadow-2xs">
+                                <div class="font-bold flex items-center space-x-1.5 text-rose-950">
+                                    <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-rose-600"></i>
+                                    <span>Punca & Justifikasi Tempoh >15 Hari:</span>
+                                </div>
+                                <ul class="list-disc list-inside space-y-1 text-[11px] text-slate-600">
+                                    <li><strong>Semakan End Report (49 kes / 38%)</strong>: Menuntut pengesahan penerbitan berwasit (Scopus/WoS), fail permohonan paten, serta semakan audit kewangan penutupan akaun geran oleh Pejabat Bendahari.</li>
+                                    <li><strong>Perlanjutan Tempoh (79 kes / 24%)</strong>: Memerlukan justifikasi teknikal pencapaian objektif geran sebelum diangkat ke Mesyuarat Jawatankuasa Penyelidikan Universiti (JPU).</li>
+                                    <li><strong>Semakan Progress Report (123 kes / 11%)</strong>: Menunggu pembetulan laporan kemajuan dan dokumen bukti perbelanjaan daripada ketua projek.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-blue-50/80 border border-blue-200 p-4 rounded-2xl flex items-start space-x-3">
+                        <div class="p-2 bg-blue-100 text-blue-700 rounded-xl mt-0.5">
+                            <i data-lucide="check-check" class="w-4 h-4"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-bold text-blue-950 uppercase">Kategori Berprestasi Tinggi (&ge; 90% Siap dlm 7 Hari)</h4>
+                            <p class="text-xs text-blue-900 mt-1 leading-relaxed">
+                                <strong>Aktiviti Luar Negara (100%)</strong>, <strong>Aktiviti Dalam Negara (99.5%)</strong>, <strong>Tuntutan SRA (98%)</strong>, <strong>Pengaktifan Geran (98%)</strong> dan <strong>Pelantikan RA/RO (93%)</strong> mempamerkan kelajuan pemprosesan yang cemerlang.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="bg-amber-50/80 border border-amber-200 p-4 rounded-2xl flex items-start space-x-3">
+                        <div class="p-2 bg-amber-100 text-amber-700 rounded-xl mt-0.5">
+                            <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-bold text-amber-950 uppercase">Kategori Memerlukan Pemantauan Tempoh (>15 Hari)</h4>
+                            <p class="text-xs text-amber-900 mt-1 leading-relaxed">
+                                <strong>Semakan End Report (38% >15 Hari)</strong> dan <strong>Perlanjutan Tempoh (24% >15 Hari)</strong> mengambil masa lebih panjang ekoran verifikasi output berimpak tinggi dan audit baki geran penyelidikan.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tabContent-perbandingan" class="hidden space-y-6">
+                <!-- Graf Bar Perbandingan Bil 11 vs Bil 12 -->
                 <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
                     <div class="flex items-center justify-between mb-4">
                         <div>
                             <h3 class="text-sm font-bold text-slate-900 flex items-center space-x-2">
-                                <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
-                                <span>% Proses dan Semakan Permohonan (Jan - 26 Ogos)</span>
+                                <span class="w-2.5 h-2.5 rounded-full bg-utm-maroon"></span>
+                                <span>Perbandingan Siri Mesyuarat PMMD: Bil. 11/2026 vs Bil. 12/2026</span>
                             </h3>
-                            <p class="text-xs text-slate-400">Pecahan nisbah masa: 1-7 Hari, 8-14 Hari & >15 Hari</p>
+                            <p class="text-xs text-slate-400">Peningkatan kuantiti permohonan terkini mengikut format Helaian 2</p>
                         </div>
                     </div>
-                    <div class="h-64 sm:h-72">
-                        <canvas id="timeBreakdownChart"></canvas>
-                    </div>
-                    <div class="mt-4 flex flex-wrap items-center justify-center gap-4 text-xs font-medium text-slate-600">
-                        <div class="flex items-center space-x-1.5">
-                            <span class="w-3 h-3 rounded-sm bg-blue-600"></span>
-                            <span>(%) 1-7 Hari</span>
-                        </div>
-                        <div class="flex items-center space-x-1.5">
-                            <span class="w-3 h-3 rounded-sm bg-amber-500"></span>
-                            <span>(%) 8-14 Hari</span>
-                        </div>
-                        <div class="flex items-center space-x-1.5">
-                            <span class="w-3 h-3 rounded-sm bg-emerald-600"></span>
-                            <span>(%) >15 Hari</span>
-                        </div>
+                    <div class="h-72 sm:h-80">
+                        <canvas id="comparisonBarChart"></canvas>
                     </div>
                 </div>
 
-                <!-- Graf Bar Mendatar: % Kelulusan -->
-                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-                    <div class="flex items-center justify-between mb-4">
-                        <div>
-                            <h3 class="text-sm font-bold text-slate-900 flex items-center space-x-2">
-                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span>
-                                <span>% Kelulusan Mengikut Kategori Proses</span>
-                            </h3>
-                            <p class="text-xs text-slate-400">Peringkat peratusan kelulusan dari 88% hingga 100%</p>
-                        </div>
-                    </div>
-                    <div class="h-64 sm:h-72">
-                        <canvas id="approvalRateChart"></canvas>
-                    </div>
-                    <div class="mt-4 text-center text-xs text-slate-500">
-                        Nota: Semakan Progress Report, End Report, dan Tuntutan SRA mengekalkan prestasi 100%.
-                    </div>
-                </div>
-            </div>
-
-            <!-- Jadual Lengkap Helaian 1 -->
-            <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-                <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div>
-                        <div class="flex items-center space-x-2">
-                            <h3 class="text-sm font-bold text-slate-900">Jadual Format Templat: Kecekapan Proses dan Semakan Permohonan</h3>
-                            <span class="bg-blue-50 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-blue-200 flex items-center gap-1">
-                                <i data-lucide="mouse-pointer-click" class="w-3 h-3"></i> Interaktif: Klik mana-mana baris untuk senarai kes
-                            </span>
-                        </div>
-                        <p class="text-xs text-slate-400 mt-0.5">Data bersumberkan Helaian 1 templat Excel (Data sehingga 26-08-2026). Tekan baris atau sel tempoh hari untuk melihat rekod fail.</p>
-                    </div>
-                    <div class="relative w-full sm:w-64">
-                        <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
-                        <input type="text" id="searchTableJanOgos" oninput="filterTableByName(this.value)" placeholder="Cari kategori proses..." class="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-utm-maroon">
-                    </div>
-                </div>
-
-                <div class="overflow-x-auto">
-                    <table class="w-full text-xs text-left">
-                        <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-bold uppercase tracking-wider text-[11px]">
-                            <tr>
-                                <th class="py-3 px-4">Proses</th>
-                                <th class="py-3 px-3 text-right">Jumlah Permohonan</th>
-                                <th class="py-3 px-3 text-right">Jumlah Kelulusan</th>
-                                <th class="py-3 px-3 text-center">% Kelulusan</th>
-                                <th class="py-3 px-3 text-center bg-blue-50/70 text-blue-900">(%) 1-7 Hari</th>
-                                <th class="py-3 px-3 text-center bg-amber-50/70 text-amber-900">(%) 7-14 Hari [Kes]</th>
-                                <th class="py-3 px-3 text-center bg-rose-50/70 text-rose-900">(%) >15 Hari [Kes]</th>
-                                <th class="py-3 px-3 text-center">Tindakan</th>
-                            </tr>
-                        </thead>
-                        <tbody id="janOgosTableBody" class="divide-y divide-slate-100">
-                            <!-- Populated via JS -->
-                        </tbody>
-                        <tfoot class="bg-slate-100 font-bold text-slate-900 border-t border-slate-300">
-                            <tr id="janOgosTableTotalRow">
-                                <!-- Populated dynamically -->
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Bahagian Paparan Maklumat Khusus: 7-14 Hari & >15 Hari -->
-            <div class="bg-white rounded-2xl border border-slate-200 shadow-xs p-5 space-y-4">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-2">
-                    <div>
-                        <h3 class="text-sm font-bold text-slate-900 flex items-center space-x-2">
-                            <i data-lucide="layers" class="w-4 h-4 text-utm-maroon"></i>
-                            <span>Perincian Khas: Permohonan Mengambil Masa 7-14 Hari vs >15 Hari</span>
-                        </h3>
-                        <p class="text-xs text-slate-500">Pecahan bilangan kes sebenar, analisis faktor kelewatan, serta langkah penyelesaian bagi melicinkan pengurusan penyelidikan UTM.</p>
-                    </div>
-                    <span class="text-xs font-semibold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700">Jumlah Terlibat: <strong id="combinedDelayedTotal">487 Kes</strong> (11.4%)</span>
-                </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                    <!-- Kad Panel 1: Tempoh 7-14 Hari -->
-                    <div class="rounded-xl border border-amber-200 bg-amber-50/30 p-4 flex flex-col justify-between space-y-4">
-                        <div>
-                            <div class="flex items-center justify-between mb-3">
-                                <div class="flex items-center space-x-2">
-                                    <span class="w-3 h-3 rounded-md bg-amber-500"></span>
-                                    <h4 class="text-xs font-bold text-amber-950 uppercase">Permohonan Mengambil Masa 7-14 Hari</h4>
-                                </div>
-                                <span class="text-xs font-extrabold text-amber-800 bg-amber-100 border border-amber-300 px-2 py-0.5 rounded-lg" id="badgeSum7_14">226 Permohonan</span>
-                            </div>
-
-                            <p class="text-xs text-slate-600 mb-3">
-                                Kategori proses dalam julat sederhana (melebihi piagam 7 hari namun diselesaikan dalam tempoh 2 minggu bekerja):
-                            </p>
-
-                            <!-- Senarai Kategori Teratas 7-14 Hari -->
-                            <div class="space-y-2 mb-4" id="listProcess7_14">
-                                <!-- Populated dynamically via JS -->
-                            </div>
-                        </div>
-
-                        <div class="p-3 bg-white rounded-xl border border-amber-200/80 text-xs text-amber-900 space-y-1.5 shadow-2xs">
-                            <div class="font-bold flex items-center space-x-1.5 text-amber-950">
-                                <i data-lucide="info" class="w-3.5 h-3.5 text-amber-600"></i>
-                                <span>Punca & Faktor Pemprosesan 7-14 Hari:</span>
-                            </div>
-                            <ul class="list-disc list-inside space-y-1 text-[11px] text-slate-600">
-                                <li><strong>Pelantikan GRA/SRA (149 kes / 17%)</strong>: Keperluan semakan baki vot peruntukan geran serta pengesahan pendaftaran pascasiswazah aktif oleh SPS.</li>
-                                <li><strong>Perlanjutan Tempoh (43 kes / 13%)</strong>: Menunggu ulasan dan sokongan bertulis daripada Pengarah Pusat Penyelidikan / Dekan Fakulti.</li>
-                                <li><strong>Pelantikan RA/RO (14 kes / 7%)</strong>: Semakan kelayakan sijil akademik & kontrak perjawatan pembantu penyelidik.</li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <!-- Kad Panel 2: Tempoh Lebih 15 Hari (>15 Hari) -->
-                    <div class="rounded-xl border border-rose-200 bg-rose-50/30 p-4 flex flex-col justify-between space-y-4">
-                        <div>
-                            <div class="flex items-center justify-between mb-3">
-                                <div class="flex items-center space-x-2">
-                                    <span class="w-3 h-3 rounded-md bg-rose-600"></span>
-                                    <h4 class="text-xs font-bold text-rose-950 uppercase">Permohonan Mengambil Masa Lebih 15 Hari (>15 Hari)</h4>
-                                </div>
-                                <span class="text-xs font-extrabold text-rose-800 bg-rose-100 border border-rose-300 px-2 py-0.5 rounded-lg" id="badgeSumGt15">261 Permohonan</span>
-                            </div>
-
-                            <p class="text-xs text-slate-600 mb-3">
-                                Kategori proses yang melepasi tempoh 15 hari bekerja dan memerlukan pemantauan intensif / verifikasi audit luar:
-                            </p>
-
-                            <!-- Senarai Kategori Teratas >15 Hari -->
-                            <div class="space-y-2 mb-4" id="listProcessGt15">
-                                <!-- Populated dynamically via JS -->
-                            </div>
-                        </div>
-
-                        <div class="p-3 bg-white rounded-xl border border-rose-200/80 text-xs text-rose-900 space-y-1.5 shadow-2xs">
-                            <div class="font-bold flex items-center space-x-1.5 text-rose-950">
-                                <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-rose-600"></i>
-                                <span>Punca & Justifikasi Tempoh >15 Hari:</span>
-                            </div>
-                            <ul class="list-disc list-inside space-y-1 text-[11px] text-slate-600">
-                                <li><strong>Semakan End Report (49 kes / 38%)</strong>: Menuntut pengesahan penerbitan berwasit (Scopus/WoS), fail permohonan paten, serta semakan audit kewangan penutupan akaun geran oleh Pejabat Bendahari.</li>
-                                <li><strong>Perlanjutan Tempoh (79 kes / 24%)</strong>: Memerlukan justifikasi teknikal pencapaian objektif geran sebelum diangkat ke Mesyuarat Jawatankuasa Penyelidikan Universiti (JPU).</li>
-                                <li><strong>Semakan Progress Report (123 kes / 11%)</strong>: Menunggu pembetulan laporan kemajuan dan dokumen bukti perbelanjaan daripada ketua projek.</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Analisis Pintar Rumusan Templat -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="bg-blue-50/80 border border-blue-200 p-4 rounded-2xl flex items-start space-x-3">
-                    <div class="p-2 bg-blue-100 text-blue-700 rounded-xl mt-0.5">
-                        <i data-lucide="check-check" class="w-4 h-4"></i>
-                    </div>
-                    <div>
-                        <h4 class="text-xs font-bold text-blue-950 uppercase">Kategori Berprestasi Tinggi (&ge; 90% Siap dlm 7 Hari)</h4>
-                        <p class="text-xs text-blue-900 mt-1 leading-relaxed">
-                            <strong>Aktiviti Luar Negara (100%)</strong>, <strong>Aktiviti Dalam Negara (99.5%)</strong>, <strong>Tuntutan SRA (98%)</strong>, <strong>Pengaktifan Geran (98%)</strong> dan <strong>Pelantikan RA/RO (93%)</strong> mempamerkan kelajuan pemprosesan yang cemerlang.
-                        </p>
-                    </div>
-                </div>
-
-                <div class="bg-amber-50/80 border border-amber-200 p-4 rounded-2xl flex items-start space-x-3">
-                    <div class="p-2 bg-amber-100 text-amber-700 rounded-xl mt-0.5">
-                        <i data-lucide="alert-triangle" class="w-4 h-4"></i>
-                    </div>
-                    <div>
-                        <h4 class="text-xs font-bold text-amber-950 uppercase">Kategori Memerlukan Pemantauan Tempoh (>15 Hari)</h4>
-                        <p class="text-xs text-amber-900 mt-1 leading-relaxed">
-                            <strong>Semakan End Report (38% >15 Hari)</strong> dan <strong>Perlanjutan Tempoh (24% >15 Hari)</strong> mengambil masa lebih panjang ekoran verifikasi output berimpak tinggi dan audit baki geran penyelidikan.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- TAB 2: PERBANDINGAN SIRI BIL 11 VS BIL 12 -->
-        <div id="tabContent-perbandingan" class="hidden space-y-6">
-            <!-- Graf Bar Perbandingan Bil 11 vs Bil 12 -->
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-                <div class="flex items-center justify-between mb-4">
-                    <div>
-                        <h3 class="text-sm font-bold text-slate-900 flex items-center space-x-2">
-                            <span class="w-2.5 h-2.5 rounded-full bg-utm-maroon"></span>
-                            <span>Perbandingan Siri Mesyuarat PMMD: Bil. 11/2026 vs Bil. 12/2026</span>
-                        </h3>
-                        <p class="text-xs text-slate-400">Peningkatan kuantiti permohonan terkini mengikut format Helaian 2</p>
-                    </div>
-                </div>
-                <div class="h-72 sm:h-80">
-                    <canvas id="comparisonBarChart"></canvas>
-                </div>
-            </div>
-
-            <!-- Jadual Perbandingan Format Excel Helaian 2 -->
-            <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-                <div class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between">
-                    <div>
-                        <h3 class="text-sm font-bold text-slate-900">Jadual Format Templat: Perbandingan Bil. 11/2026 vs Bil. 12/2026</h3>
-                        <p class="text-xs text-slate-400">Jadual dwisiri permohonan, kelulusan dan kadar kenaikan (Δ)</p>
-                    </div>
-                    <span class="text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg">Peningkatan Bersih: +148 Permohonan</span>
-                </div>
-
-                <div class="overflow-x-auto">
-                    <table class="w-full text-xs text-left">
-                        <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-bold uppercase text-[11px]">
-                            <tr>
-                                <th rowspan="2" class="py-3 px-4 border-r border-slate-200 align-middle">Proses</th>
-                                <th colspan="2" class="py-2 px-3 text-center border-r border-slate-200 bg-slate-100/80">Bil. 11/2026</th>
-                                <th colspan="2" class="py-2 px-3 text-center border-r border-slate-200 bg-amber-100/50 text-amber-900">Bil. 12/2026</th>
-                                <th colspan="2" class="py-2 px-3 text-center bg-emerald-100/60 text-emerald-900">Peningkatan (+)</th>
-                            </tr>
-                            <tr class="border-b border-slate-200">
-                                <th class="py-2 px-3 text-right">Permohonan</th>
-                                <th class="py-2 px-3 text-right border-r border-slate-200">Kelulusan</th>
-                                <th class="py-2 px-3 text-right bg-amber-50/50">Permohonan</th>
-                                <th class="py-2 px-3 text-right border-r border-slate-200 bg-amber-50/50">Kelulusan</th>
-                                <th class="py-2 px-3 text-right bg-emerald-50/30 text-emerald-800">Permohonan</th>
-                                <th class="py-2 px-3 text-right bg-emerald-50/30 text-emerald-800">Kelulusan</th>
-                            </tr>
-                        </thead>
-                        <tbody id="comparisonTableBody" class="divide-y divide-slate-100">
-                            <!-- Populated via JS -->
-                        </tbody>
-                        <tfoot class="bg-slate-100/90 font-bold border-t border-slate-300 text-slate-900">
-                            <tr>
-                                <td class="py-3 px-4 border-r border-slate-200">JUMLAH KESELURUHAN</td>
-                                <td class="py-3 px-3 text-right font-mono" id="compTotP11">4,122</td>
-                                <td class="py-3 px-3 text-right font-mono border-r border-slate-200" id="compTotK11">4,069</td>
-                                <td class="py-3 px-3 text-right font-mono text-utm-maroon bg-amber-100/40" id="compTotP12">4,270</td>
-                                <td class="py-3 px-3 text-right font-mono text-utm-maroon border-r border-slate-200 bg-amber-100/40" id="compTotK12">4,187</td>
-                                <td class="py-3 px-3 text-right font-mono text-emerald-700 bg-emerald-100/40" id="compTotDP">+148</td>
-                                <td class="py-3 px-3 text-right font-mono text-emerald-700 bg-emerald-100/40" id="compTotDK">+118</td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- TAB 3: STATUS LANTIKAN GRA -->
-        <div id="tabContent-gra" class="hidden space-y-6">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                <!-- Donut Chart GRA (Slaid 4) -->
-                <div class="lg:col-span-5 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between">
-                    <div>
-                        <h3 class="text-sm font-bold text-slate-900 flex items-center space-x-2">
-                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span>
-                            <span>% Status Lantikan GRA (Pivot Chart Slaid 4)</span>
-                        </h3>
-                        <p class="text-xs text-slate-400 mb-4">Pecahan 705 rekod lantikan Graduate Research Assistant</p>
-                        
-                        <div class="relative h-60 flex items-center justify-center">
-                            <canvas id="graStatusChart"></canvas>
-                            <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                                <span class="text-3xl font-extrabold text-slate-900">85%</span>
-                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Approved</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mt-4 p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-xs text-emerald-900 flex items-center justify-between">
-                        <span class="font-semibold">600 Permohonan Diluluskan</span>
-                        <span class="font-mono font-bold bg-emerald-200 px-2 py-0.5 rounded text-emerald-800">85% Keseluruhan</span>
-                    </div>
-                </div>
-
-                <!-- Jadual Slaid 4 & Slaid 5 Format Templat Excel -->
-                <div class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden flex flex-col">
+                <!-- Jadual Perbandingan Format Excel Helaian 2 -->
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
                     <div class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between">
                         <div>
-                            <h3 class="text-sm font-bold text-slate-900">Jadual Format Templat: Status Lantikan GRA (Slaid 4 & 5)</h3>
-                            <p class="text-xs text-slate-400">Pecahan status Bil. 11/2026 vs Bil. 12/2026</p>
+                            <h3 class="text-sm font-bold text-slate-900">Jadual Format Templat: Perbandingan Bil. 11/2026 vs Bil. 12/2026</h3>
+                            <p class="text-xs text-slate-400">Jadual dwisiri permohonan, kelulusan dan kadar kenaikan (&Delta;)</p>
                         </div>
-                        <span class="text-xs font-bold px-2.5 py-1 bg-slate-100 rounded-lg text-slate-600 font-mono">Jumlah: 705</span>
+                        <span class="text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg">Peningkatan Bersih: +148 Permohonan</span>
                     </div>
 
-                    <div class="overflow-x-auto flex-1">
+                    <div class="overflow-x-auto">
                         <table class="w-full text-xs text-left">
                             <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-bold uppercase text-[11px]">
                                 <tr>
-                                    <th class="py-3 px-4">Status</th>
-                                    <th class="py-3 px-3 text-right">Bil. 11</th>
-                                    <th class="py-3 px-3 text-right bg-amber-50/70">Bil. 12</th>
-                                    <th class="py-3 px-3 text-center">% Bil. 12</th>
-                                    <th class="py-3 px-3 text-right">Peningkatan</th>
+                                    <th rowspan="2" class="py-3 px-4 border-r border-slate-200 align-middle">Proses</th>
+                                    <th colspan="2" class="py-2 px-3 text-center border-r border-slate-200 bg-slate-100/80">Bil. 11/2026</th>
+                                    <th colspan="2" class="py-2 px-3 text-center border-r border-slate-200 bg-amber-100/50 text-amber-900">Bil. 12/2026</th>
+                                    <th colspan="2" class="py-2 px-3 text-center bg-emerald-100/60 text-emerald-900">Peningkatan (+)</th>
+                                </tr>
+                                <tr class="border-b border-slate-200">
+                                    <th class="py-2 px-3 text-right">Permohonan</th>
+                                    <th class="py-2 px-3 text-right border-r border-slate-200">Kelulusan</th>
+                                    <th class="py-2 px-3 text-right bg-amber-50/50">Permohonan</th>
+                                    <th class="py-2 px-3 text-right border-r border-slate-200 bg-amber-50/50">Kelulusan</th>
+                                    <th class="py-2 px-3 text-right bg-emerald-50/30 text-emerald-800">Permohonan</th>
+                                    <th class="py-2 px-3 text-right bg-emerald-50/30 text-emerald-800">Kelulusan</th>
                                 </tr>
                             </thead>
-                            <tbody id="graTableBody" class="divide-y divide-slate-100">
+                            <tbody id="comparisonTableBody" class="divide-y divide-slate-100">
                                 <!-- Populated via JS -->
                             </tbody>
-                            <tfoot class="bg-slate-100 font-bold text-slate-900">
+                            <tfoot class="bg-slate-100/90 font-bold border-t border-slate-300 text-slate-900">
                                 <tr>
-                                    <td class="py-2.5 px-4">TOTAL</td>
-                                    <td class="py-2.5 px-3 text-right font-mono">648</td>
-                                    <td class="py-2.5 px-3 text-right font-mono text-utm-maroon bg-amber-100/50">705</td>
-                                    <td class="py-2.5 px-3 text-center font-mono">100%</td>
-                                    <td class="py-2.5 px-3 text-right font-mono text-emerald-700">+57</td>
+                                    <td class="py-3 px-4 border-r border-slate-200">JUMLAH KESELURUHAN</td>
+                                    <td class="py-3 px-3 text-right font-mono" id="compTotP11">4,122</td>
+                                    <td class="py-3 px-3 text-right font-mono border-r border-slate-200" id="compTotK11">4,069</td>
+                                    <td class="py-3 px-3 text-right font-mono text-utm-maroon bg-amber-100/40" id="compTotP12">4,270</td>
+                                    <td class="py-3 px-3 text-right font-mono text-utm-maroon border-r border-slate-200 bg-amber-100/40" id="compTotK12">4,187</td>
+                                    <td class="py-3 px-3 text-right font-mono text-emerald-700 bg-emerald-100/40" id="compTotDP">+148</td>
+                                    <td class="py-3 px-3 text-right font-mono text-emerald-700 bg-emerald-100/40" id="compTotDK">+118</td>
                                 </tr>
                             </tfoot>
                         </table>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- TAB 4: TEMPLAT & MUAT NAIK EXCEL -->
-        <div id="tabContent-templat" class="hidden space-y-6">
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-5">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+            <div id="tabContent-gra" class="hidden space-y-6">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <!-- Donut Chart GRA (Slaid 4) -->
+                    <div class="lg:col-span-5 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-sm font-bold text-slate-900 flex items-center space-x-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span>
+                                <span>% Status Lantikan GRA (Pivot Chart Slaid 4)</span>
+                            </h3>
+                            <p class="text-xs text-slate-400 mb-4">Pecahan 705 rekod lantikan Graduate Research Assistant</p>
+                            
+                            <div class="relative h-60 flex items-center justify-center">
+                                <canvas id="graStatusChart"></canvas>
+                                <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                                    <span class="text-3xl font-extrabold text-slate-900">85%</span>
+                                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Approved</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Jadual Slaid 4 & Slaid 5 Format Templat Excel -->
+                    <div class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden flex flex-col">
+                        <div class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between">
+                            <div>
+                                <h3 class="text-sm font-bold text-slate-900">Jadual Format Templat: Status Lantikan GRA (Slaid 4 & 5)</h3>
+                                <p class="text-xs text-slate-400">Pecahan status Bil. 11/2026 vs Bil. 12/2026</p>
+                            </div>
+                            <span class="text-xs font-bold px-2.5 py-1 bg-slate-100 rounded-lg text-slate-600 font-mono">Jumlah: 705</span>
+                        </div>
+
+                        <div class="overflow-x-auto flex-1">
+                            <table class="w-full text-xs text-left">
+                                <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-bold uppercase text-[11px]">
+                                    <tr>
+                                        <th class="py-3 px-4">Status</th>
+                                        <th class="py-3 px-3 text-right">Bil. 11</th>
+                                        <th class="py-3 px-3 text-right bg-amber-50/70">Bil. 12</th>
+                                        <th class="py-3 px-3 text-center">% Bil. 12</th>
+                                        <th class="py-3 px-3 text-right">Peningkatan</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="graTableBody" class="divide-y divide-slate-100">
+                                    <!-- Populated via JS -->
+                                </tbody>
+                                <tfoot class="bg-slate-100 font-bold text-slate-900">
+                                    <tr>
+                                        <td class="py-2.5 px-4">TOTAL</td>
+                                        <td class="py-2.5 px-3 text-right font-mono">648</td>
+                                        <td class="py-2.5 px-3 text-right font-mono text-utm-maroon bg-amber-100/50">705</td>
+                                        <td class="py-2.5 px-3 text-center font-mono">100%</td>
+                                        <td class="py-2.5 px-3 text-right font-mono text-emerald-700">+57</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tabContent-semakan" class="hidden space-y-6">
+                <!-- Kad Carian Semakan -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs">
+                    <div class="max-w-2xl">
+                        <h3 class="text-base font-bold text-slate-900">Modul Semakan Status Permohonan Penyelidikan</h3>
+                        <p class="text-xs text-slate-500 mt-1">Masukkan No. Rujukan Permohonan, No. KP atau Nama Pemohon untuk melihat kemajuan proses secara langsung mengikut aliran kerja RMC/PMMD.</p>
+                        
+                        <div class="mt-4 flex flex-col sm:flex-row items-stretch gap-2">
+                            <div class="relative flex-1">
+                                <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-3"></i>
+                                <input type="text" id="trackingInput" placeholder="Contoh: UTM-GRA-2026-0881 atau UTM-END-2026-0120" class="w-full pl-10 pr-4 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-utm-maroon font-medium">
+                            </div>
+                            <button onclick="performTrackingSearch()" class="inline-flex items-center justify-center space-x-2 bg-utm-maroon hover:bg-utm-dark text-white px-5 py-2.5 rounded-xl text-xs font-semibold shadow-xs transition">
+                                <i data-lucide="search" class="w-4 h-4"></i>
+                                <span>Semak Status</span>
+                            </button>
+                        </div>
+
+                        <!-- Butang Pantas Ujian -->
+                        <div class="mt-3 flex flex-wrap items-center gap-2 text-2xs text-slate-500">
+                            <span class="text-xs font-medium">Cuba Contoh Rujukan:</span>
+                            <button onclick="quickTestTracking('UTM-GRA-2026-0881')" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 rounded-md font-mono text-slate-700">UTM-GRA-2026-0881</button>
+                            <button onclick="quickTestTracking('UTM-SRA-2026-0412')" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 rounded-md font-mono text-slate-700">UTM-SRA-2026-0412</button>
+                            <button onclick="quickTestTracking('UTM-END-2026-0120')" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 rounded-md font-mono text-slate-700">UTM-END-2026-0120</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hasil Carian & Timeline Aliran Kerja -->
+                <div id="trackingResultBox" class="hidden bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-3">
+                        <div>
+                            <div class="flex items-center space-x-2">
+                                <span id="trackRefNo" class="font-mono font-bold text-sm text-utm-maroon"></span>
+                                <span id="trackStatusBadge" class="px-2.5 py-0.5 rounded-full text-2xs font-bold uppercase"></span>
+                            </div>
+                            <h4 id="trackTitle" class="text-base font-bold text-slate-900 mt-1"></h4>
+                            <p class="text-xs text-slate-500">Pemohon: <span id="trackApplicant" class="font-medium text-slate-700"></span> &bull; Tarikh Mohon: <span id="trackDate" class="font-medium text-slate-700"></span></p>
+                        </div>
+                        <div class="text-left sm:text-right">
+                            <div class="text-2xs uppercase text-slate-400 font-bold">Tempoh Masa Semasa</div>
+                            <div id="trackDuration" class="text-sm font-bold text-slate-800"></div>
+                        </div>
+                    </div>
+
+                    <!-- 4 Peringkat Visual Aliran Kerja -->
                     <div>
-                        <h3 class="text-base font-bold text-slate-900 flex items-center space-x-2">
-                            <i data-lucide="file-spreadsheet" class="w-5 h-5 text-utm-maroon"></i>
-                            <span>Pengurusan & Templat Lembaran Kerja Excel</span>
-                        </h3>
-                        <p class="text-xs text-slate-500 mt-1">
-                            Format fail rasmi <code class="bg-slate-100 px-1 py-0.5 rounded text-utm-maroon font-semibold">Data Performan PMMD Jan hingga 26 Ogos.xlsx</code> boleh disunting terus atau dieksport semula.
-                        </p>
+                        <h5 class="text-xs font-bold text-slate-700 uppercase mb-4 tracking-wider">Carta Aliran Peringkat Semakan</h5>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div id="step-1" class="p-3.5 rounded-xl border bg-slate-50 flex items-start space-x-3">
+                                <div class="step-icon w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs bg-slate-200 text-slate-700">1</div>
+                                <div>
+                                    <div class="text-xs font-bold text-slate-900">Penyerahan</div>
+                                    <div class="text-[11px] text-slate-500 mt-0.5">Dokumen Diterima</div>
+                                </div>
+                            </div>
+                            <div id="step-2" class="p-3.5 rounded-xl border bg-slate-50 flex items-start space-x-3">
+                                <div class="step-icon w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs bg-slate-200 text-slate-700">2</div>
+                                <div>
+                                    <div class="text-xs font-bold text-slate-900">Semakan Kerani</div>
+                                    <div class="text-[11px] text-slate-500 mt-0.5">Verifikasi Syarat Am</div>
+                                </div>
+                            </div>
+                            <div id="step-3" class="p-3.5 rounded-xl border bg-slate-50 flex items-start space-x-3">
+                                <div class="step-icon w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs bg-slate-200 text-slate-700">3</div>
+                                <div>
+                                    <div class="text-xs font-bold text-slate-900">Semakan Pegawai RMC</div>
+                                    <div class="text-[11px] text-slate-500 mt-0.5">Pematuhan Bajet/Syarat</div>
+                                </div>
+                            </div>
+                            <div id="step-4" class="p-3.5 rounded-xl border bg-slate-50 flex items-start space-x-3">
+                                <div class="step-icon w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs bg-slate-200 text-slate-700">4</div>
+                                <div>
+                                    <div class="text-xs font-bold text-slate-900">Keputusan Akhir</div>
+                                    <div class="text-[11px] text-slate-500 mt-0.5">Kelulusan & Notifikasi</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="flex items-center space-x-2">
-                        <button onclick="downloadOfficialExcelTemplate()" class="inline-flex items-center space-x-1.5 bg-utm-maroon hover:bg-utm-dark text-white px-3.5 py-2 rounded-xl text-xs font-semibold shadow-xs transition">
-                            <i data-lucide="file-down" class="w-4 h-4"></i>
-                            <span>Muat Turun .XLSX Rasmi</span>
-                        </button>
-                        <button onclick="downloadCSVReport()" class="inline-flex items-center space-x-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 px-3.5 py-2 rounded-xl text-xs font-semibold transition">
-                            <i data-lucide="download" class="w-4 h-4"></i>
-                            <span>Eksport CSV</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Zon Seret & Lepas (Drag & Drop) Fail Excel -->
-                <div class="border-2 border-dashed border-slate-200 rounded-2xl p-6 text-center hover:border-utm-maroon transition bg-slate-50/50" ondragover="event.preventDefault()" ondrop="handleDropFile(event)">
-                    <div class="w-12 h-12 rounded-2xl bg-rose-50 text-utm-maroon flex items-center justify-center mx-auto mb-3">
-                        <i data-lucide="upload-cloud" class="w-6 h-6"></i>
-                    </div>
-                    <h4 class="text-xs font-bold text-slate-800">Muat Naik Fail Excel Anda (Format .xlsx / .csv)</h4>
-                    <p class="text-[11px] text-slate-500 mt-1 max-w-md mx-auto">
-                        Seret fail ke sini atau klik butang di bawah. Papan pemuka akan membaca lajur data dan mengemas kini graf serta KPI serta-merta.
-                    </p>
-                    <div class="mt-4">
-                        <label for="excelFileInput2" class="cursor-pointer inline-flex items-center space-x-2 px-4 py-2 bg-utm-maroon text-white font-semibold text-xs rounded-xl shadow-xs hover:bg-utm-dark transition">
-                            <i data-lucide="folder-open" class="w-4 h-4"></i>
-                            <span>Pilih Fail Excel dari Komputer</span>
-                        </label>
-                        <input type="file" id="excelFileInput2" accept=".xlsx, .xls, .csv" class="hidden" onchange="handleExcelUpload(event)">
-                    </div>
-                </div>
-
-                <!-- Struktur Lajur Templat Piawai UTM -->
-                <div>
-                    <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-3">Piawaian Lajur Templat Data Performan PMMD:</h4>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-                        <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200">
-                            <span class="font-bold text-slate-900 block mb-1">Helaian 1: Kecekapan</span>
-                            <ul class="list-disc list-inside space-y-1 text-slate-600 text-[11px]">
-                                <li><code>Proses</code> (Kategori)</li>
-                                <li><code>Jumlah Permohonan</code></li>
-                                <li><code>Jumlah Kelulusan</code></li>
-                                <li><code>% Kelulusan</code></li>
-                                <li><code>1-7 Hari (%)</code>, <code>8-14 Hari (%)</code>, <code>>15 Hari (%)</code></li>
+                    <!-- Log Jejak Tindakan (Audit Log) -->
+                    <div>
+                        <h5 class="text-xs font-bold text-slate-700 uppercase mb-3 tracking-wider">Log Jejak Tindakan & Nota Pegawai</h5>
+                        <div class="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                            <ul id="trackAuditLogs" class="space-y-3 text-xs text-slate-600">
+                                <!-- Populated via JS -->
                             </ul>
                         </div>
-                        <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200">
-                            <span class="font-bold text-slate-900 block mb-1">Helaian 2: Perbandingan</span>
-                            <ul class="list-disc list-inside space-y-1 text-slate-600 text-[11px]">
-                                <li><code>Proses</code></li>
-                                <li><code>Bil. 11 Permohonan</code> & <code>Kelulusan</code></li>
-                                <li><code>Bil. 12 Permohonan</code> & <code>Kelulusan</code></li>
-                                <li><code>Peningkatan Permohonan (Δ)</code></li>
-                                <li><code>Peningkatan Kelulusan (Δ)</code></li>
-                            </ul>
+                    </div>
+                </div>
+
+                <!-- Senarai Contoh Permohonan Aktif -->
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+                    <div class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between">
+                        <div>
+                            <h3 class="text-sm font-bold text-slate-900">Senarai Permohonan Terkini dalam Pangkalan Data</h3>
+                            <p class="text-xs text-slate-400">Klik baris untuk menyemak maklumat terperinci</p>
                         </div>
-                        <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200">
-                            <span class="font-bold text-slate-900 block mb-1">Helaian 3: Status GRA</span>
-                            <ul class="list-disc list-inside space-y-1 text-slate-600 text-[11px]">
-                                <li><code>Status</code> (10 status permohonan)</li>
-                                <li><code>Bil. 11/2026</code> (Bilangan)</li>
-                                <li><code>Bil. 12/2026</code> (Bilangan)</li>
-                                <li><code>% Bil. 12</code></li>
-                                <li><code>Peningkatan (Δ)</code></li>
-                            </ul>
-                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-xs text-left">
+                            <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-bold uppercase text-[11px]">
+                                <tr>
+                                    <th class="py-3 px-4">No. Rujukan</th>
+                                    <th class="py-3 px-3">Jenis Permohonan</th>
+                                    <th class="py-3 px-3">Pemohon / Ketua Projek</th>
+                                    <th class="py-3 px-3">Tarikh Hantar</th>
+                                    <th class="py-3 px-3 text-center">Status</th>
+                                    <th class="py-3 px-3 text-center">Tindakan</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sampleRecordsTable" class="divide-y divide-slate-100">
+                                <!-- Populated via JS -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
-        </div>
-
-        <!-- TAB 5: SEMAKAN PERMOHONAN -->
-        <div id="tabContent-semakan" class="hidden space-y-6">
-            <!-- Kad Carian Semakan -->
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs">
-                <div class="max-w-2xl">
-                    <h3 class="text-base font-bold text-slate-900">Modul Semakan Status Permohonan Penyelidikan</h3>
-                    <p class="text-xs text-slate-500 mt-1">Masukkan No. Rujukan Permohonan, No. KP atau Nama Pemohon untuk melihat kemajuan proses secara langsung mengikut aliran kerja RMC/PMMD.</p>
-                    
-                    <div class="mt-4 flex flex-col sm:flex-row items-stretch gap-2">
-                        <div class="relative flex-1">
-                            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-3"></i>
-                            <input type="text" id="trackingInput" placeholder="Contoh: UTM-GRA-2026-0881 atau UTM-END-2026-0120" class="w-full pl-10 pr-4 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-utm-maroon font-medium">
-                        </div>
-                        <button onclick="performTrackingSearch()" class="inline-flex items-center justify-center space-x-2 bg-utm-maroon hover:bg-utm-dark text-white px-5 py-2.5 rounded-xl text-xs font-semibold shadow-xs transition">
-                            <i data-lucide="search" class="w-4 h-4"></i>
-                            <span>Semak Status</span>
-                        </button>
-                    </div>
-
-                    <!-- Butang Pantas Ujian -->
-                    <div class="mt-3 flex flex-wrap items-center gap-2 text-2xs text-slate-500">
-                        <span class="text-xs font-medium">Cuba Contoh Rujukan:</span>
-                        <button onclick="quickTestTracking('UTM-GRA-2026-0881')" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 rounded-md font-mono text-slate-700">UTM-GRA-2026-0881</button>
-                        <button onclick="quickTestTracking('UTM-SRA-2026-0412')" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 rounded-md font-mono text-slate-700">UTM-SRA-2026-0412</button>
-                        <button onclick="quickTestTracking('UTM-END-2026-0120')" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 rounded-md font-mono text-slate-700">UTM-END-2026-0120</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Hasil Carian & Timeline Aliran Kerja -->
-            <div id="trackingResultBox" class="hidden bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-6">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-3">
-                    <div>
-                        <div class="flex items-center space-x-2">
-                            <span id="trackRefNo" class="font-mono font-bold text-sm text-utm-maroon"></span>
-                            <span id="trackStatusBadge" class="px-2.5 py-0.5 rounded-full text-2xs font-bold uppercase"></span>
-                        </div>
-                        <h4 id="trackTitle" class="text-base font-bold text-slate-900 mt-1"></h4>
-                        <p class="text-xs text-slate-500">Pemohon: <span id="trackApplicant" class="font-medium text-slate-700"></span> &bull; Tarikh Mohon: <span id="trackDate" class="font-medium text-slate-700"></span></p>
-                    </div>
-                    <div class="text-left sm:text-right">
-                        <div class="text-2xs uppercase text-slate-400 font-bold">Tempoh Masa Semasa</div>
-                        <div id="trackDuration" class="text-sm font-bold text-slate-800"></div>
-                    </div>
-                </div>
-
-                <!-- 4 Peringkat Visual Aliran Kerja -->
-                <div>
-                    <h5 class="text-xs font-bold text-slate-700 uppercase mb-4 tracking-wider">Carta Aliran Peringkat Semakan</h5>
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div id="step-1" class="p-3.5 rounded-xl border bg-slate-50 flex items-start space-x-3">
-                            <div class="step-icon w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs bg-slate-200 text-slate-700">1</div>
-                            <div>
-                                <div class="text-xs font-bold text-slate-900">Penyerahan</div>
-                                <div class="text-[11px] text-slate-500 mt-0.5">Dokumen Diterima</div>
-                            </div>
-                        </div>
-                        <div id="step-2" class="p-3.5 rounded-xl border bg-slate-50 flex items-start space-x-3">
-                            <div class="step-icon w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs bg-slate-200 text-slate-700">2</div>
-                            <div>
-                                <div class="text-xs font-bold text-slate-900">Semakan Kerani</div>
-                                <div class="text-[11px] text-slate-500 mt-0.5">Verifikasi Syarat Am</div>
-                            </div>
-                        </div>
-                        <div id="step-3" class="p-3.5 rounded-xl border bg-slate-50 flex items-start space-x-3">
-                            <div class="step-icon w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs bg-slate-200 text-slate-700">3</div>
-                            <div>
-                                <div class="text-xs font-bold text-slate-900">Semakan Pegawai RMC</div>
-                                <div class="text-[11px] text-slate-500 mt-0.5">Pematuhan Bajet/Syarat</div>
-                            </div>
-                        </div>
-                        <div id="step-4" class="p-3.5 rounded-xl border bg-slate-50 flex items-start space-x-3">
-                            <div class="step-icon w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs bg-slate-200 text-slate-700">4</div>
-                            <div>
-                                <div class="text-xs font-bold text-slate-900">Keputusan Akhir</div>
-                                <div class="text-[11px] text-slate-500 mt-0.5">Kelulusan & Notifikasi</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Log Jejak Tindakan (Audit Log) -->
-                <div>
-                    <h5 class="text-xs font-bold text-slate-700 uppercase mb-3 tracking-wider">Log Jejak Tindakan & Nota Pegawai</h5>
-                    <div class="bg-slate-50 rounded-xl p-4 border border-slate-200">
-                        <ul id="trackAuditLogs" class="space-y-3 text-xs text-slate-600">
-                            <!-- Populated via JS -->
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Senarai Contoh Permohonan Aktif -->
-            <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-                <div class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between">
-                    <div>
-                        <h3 class="text-sm font-bold text-slate-900">Senarai Permohonan Terkini dalam Pangkalan Data</h3>
-                        <p class="text-xs text-slate-400">Klik baris untuk menyemak maklumat terperinci</p>
-                    </div>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-xs text-left">
-                        <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-bold uppercase text-[11px]">
-                            <tr>
-                                <th class="py-3 px-4">No. Rujukan</th>
-                                <th class="py-3 px-3">Jenis Permohonan</th>
-                                <th class="py-3 px-3">Pemohon / Ketua Projek</th>
-                                <th class="py-3 px-3">Tarikh Hantar</th>
-                                <th class="py-3 px-3 text-center">Status</th>
-                                <th class="py-3 px-3 text-center">Tindakan</th>
-                            </tr>
-                        </thead>
-                        <tbody id="sampleRecordsTable" class="divide-y divide-slate-100">
-                            <!-- Populated via JS -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
 
         </main>
     </div>
 
-    <!-- Kaki Laman -->
-    <footer class="bg-white border-t border-slate-200 py-4 mt-8">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-400">
+    <footer class="bg-white border-t border-slate-200 py-4 mt-8 w-full">
+        <div class="w-full px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-400">
             <div>
                 &copy; 2026 Universiti Teknologi Malaysia (UTM) &bull; Research Management Centre (RMC) / PMMD
             </div>
             <div class="flex items-center space-x-4">
-                <span>Pelan Strategik UTM Ascend 2030</span>
+                <span>Data sehingga 26-08-2026</span>
                 <span>&bull;</span>
                 <span class="text-slate-600 font-medium">Inovatif, Berdaya Usaha, Global</span>
             </div>
@@ -1024,7 +931,6 @@
         </div>
     </div>
 
-    <!-- LOGIK JAVASCRIPT SISTEM -->
     <script>
         // Data Asas Helaian 1: Kecekapan Proses (Jan - 26 Ogos)
         const rawJanOgosTemplateData = [
@@ -1165,12 +1071,10 @@
         let comparisonChart = null;
         let graChart = null;
 
-        // Pembolehubah Modal Maklumat Lengkap Kes Helaian 1
         let activeModalProcessName = "";
         let activeModalPeriodFilter = "all";
         let activeModalCasesList = [];
 
-        // Pangkalan Data Lengkap Simulasi Kes Mengikut Fakulti & SOP UTM
         const facultiesList = [
             "Fakulti Kejuruteraan Elektrik (FKE)",
             "Fakulti Kejuruteraan Mekanikal (FKM)",
@@ -1199,7 +1103,6 @@
             "Dr. Raja Norazura binti Raja Petra"
         ];
 
-        // Penjana Kes Dinamik Berdasarkan Kategori & Nisbah Templat Jan-26 Ogos
         function generateCasesForProcess(processName) {
             const processMeta = rawJanOgosTemplateData.find(p => p.proses === processName) || {
                 permohonan: 100, kelulusan: 95, pctKelulusan: 95, d1_7: 85, d8_14: 10, dgt15: 5
@@ -1348,7 +1251,6 @@
             return `Tempoh ${days} hari: Semakan penyelarasan invois dan baki vot peruntukan geran.`;
         }
 
-        // Fungsi Membuka Modal Maklumat Lengkap Kes Helaian 1
         function openProcessCasesModal(processName, initialPeriod = 'all') {
             activeModalProcessName = processName;
             activeModalPeriodFilter = initialPeriod;
@@ -1361,7 +1263,6 @@
             
             document.getElementById('modalProcessBadge').innerText = `${totalCount.toLocaleString()} Permohonan (${pctApp}% Lulus)`;
 
-            // Kira jumlah bagi setiap julat tempoh
             const countAll = activeModalCasesList.length;
             const count1_7 = activeModalCasesList.filter(c => c.periodCategory === '1-7').length;
             const count8_14 = activeModalCasesList.filter(c => c.periodCategory === '8-14').length;
@@ -1372,7 +1273,6 @@
             document.getElementById('modalCount8_14').innerText = count8_14;
             document.getElementById('modalCountGt15').innerText = countGt15;
 
-            // Reset carian
             document.getElementById('modalCaseSearchInput').value = '';
             document.getElementById('selectedCaseAuditCard').classList.add('hidden');
 
@@ -1525,7 +1425,6 @@
             showToast(`Senarai kes bagi "${activeModalProcessName}" berjaya dieksport.`);
         }
 
-        // Penapis Global & Pengiraan Semula Data
         function applyGlobalFilters() {
             const bulanVal = document.getElementById('filterBulan').value;
             const prosesVal = document.getElementById('filterProses').value;
@@ -1594,7 +1493,6 @@
             updateCharts();
         }
 
-        // Inisialisasi Carta Visual Chart.js
         function initCharts() {
             // 1. Carta Bar Bertumpuk (Tempoh Hari)
             const ctxTime = document.getElementById('timeBreakdownChart').getContext('2d');
@@ -1699,7 +1597,6 @@
             });
         }
 
-        // Pengisian Data ke dalam Jadual-Jadual Sistem
         function populateTables() {
             // 1. Jadual Helaian 1: Kecekapan
             const tBodyJan = document.getElementById('janOgosTableBody');
@@ -1984,7 +1881,7 @@
         }
 
         function switchTab(tabId) {
-            ['kecekapan', 'perbandingan', 'gra', 'templat', 'semakan'].forEach(t => {
+            ['kecekapan', 'perbandingan', 'gra', 'semakan'].forEach(t => {
                 const content = document.getElementById(`tabContent-${t}`);
                 const btn = document.getElementById(`tabBtn-${t}`);
                 if (content && btn) {
@@ -1997,15 +1894,18 @@
                     }
                 }
             });
-            lucide.createIcons();
-        }
 
-        function handleDropFile(event) {
-            event.preventDefault();
-            const files = event.dataTransfer.files;
-            if (files && files.length > 0) {
-                parseExcelFile(files[0]);
+            // Menyembunyikan sepanduk status data pada tab status lantikan GRA
+            const fileBanner = document.getElementById('fileStatusBanner');
+            if (fileBanner) {
+                if (tabId === 'gra') {
+                    fileBanner.classList.add('hidden');
+                } else {
+                    fileBanner.classList.remove('hidden');
+                }
             }
+
+            lucide.createIcons();
         }
 
         function handleExcelUpload(event) {
@@ -2023,6 +1923,7 @@
                     const workbook = XLSX.read(data, { type: 'array' });
                     
                     document.getElementById('currentDataSourceName').innerText = `Fail Dimuat Naik: ${file.name}`;
+                    document.getElementById('headerFileBadge').innerText = file.name;
 
                     workbook.SheetNames.forEach(sheetName => {
                         const sLower = sheetName.toLowerCase();
@@ -2120,24 +2021,6 @@
                 console.error(err);
                 showToast("Gagal menjana fail Excel.", "error");
             }
-        }
-
-        function downloadCSVReport() {
-            let csv = 'Proses,Jumlah Permohonan,Jumlah Kelulusan,% Kelulusan,1-7 Hari (%),8-14 Hari (%),>15 Hari (%)\n';
-            filteredJanOgosData.forEach(r => {
-                csv += `"${r.proses}",${r.permohonan},${r.kelulusan},${r.pctKelulusan},${r.d1_7},${r.d8_14},${r.dgt15}\n`;
-            });
-
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a");
-            const url = URL.createObjectURL(blob);
-            link.setAttribute("href", url);
-            link.setAttribute("download", `Laporan_Kecekapan_PMMD_${new Date().toISOString().slice(0,10)}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-
-            showToast("Laporan CSV berjaya dimuat turun!");
         }
 
         function quickTestTracking(ref) {
